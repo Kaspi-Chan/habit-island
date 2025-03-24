@@ -1,5 +1,5 @@
 import { createSignal } from 'solid-js';
-import HamburgerMenu from "./hamburgerMenu.jsx";
+import HamburgerMenu from "./HamburgerMenu.jsx";
 import NavList from './NavList.jsx';
 
 const Nav = () => {
