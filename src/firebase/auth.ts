@@ -25,7 +25,6 @@ export const registerWithEmail = async (
     );
     const user = userCredential.user;
     await updateProfile(user, { displayName: username });
-    console.log(user);
   } catch (error) {
     if (error instanceof FirebaseError) {
       return getAuthErrorMessage(error.code);

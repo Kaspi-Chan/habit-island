@@ -6,11 +6,17 @@ const Login = () => {
   const [email, setEmail] = createSignal("");
   const [password, setPassword] = createSignal("");
 
+  const handleLogin = async () => {
+    const error = await loginWithEmail(email(), password());
+
+    if (error) return error;
+  };
+
   return (
     <AuthModal
       id="login-modal"
       title="Login"
-      onSubmit={() => loginWithEmail(email(), password())}
+      onSubmit={handleLogin}
       buttonText="Login">
       <div class="space-y-3 flex flex-col ">
         <div class="flex flex-col justify-center items-center">

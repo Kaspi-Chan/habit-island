@@ -3,7 +3,6 @@ import { render } from "solid-js/web";
 
 import "./index.css";
 import App from "./App.jsx";
-import { AuthProvider } from "./context/AuthProvider.jsx";
 
 const root = document.getElementById("root");
 
@@ -13,11 +12,4 @@ if (import.meta.env.DEV && !(root instanceof HTMLElement)) {
   );
 }
 
-render(
-  () => (
-    <AuthProvider>
-      <App />
-    </AuthProvider>
-  ),
-  root!
-);
+render(() => <App />, root!);

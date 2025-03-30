@@ -15,11 +15,17 @@ const Register = () => {
     }
   };
 
+  const handleRegister = async () => {
+    const error = await registerWithEmail(email(), password(), username());
+
+    if (error) return error;
+  };
+
   return (
     <AuthModal
       id="register-modal"
       title="Registger"
-      onSubmit={() => registerWithEmail(email(), password(), username())}
+      onSubmit={handleRegister}
       buttonText="Register">
       <div class="space-y-3 flex flex-col ">
         <div class="flex flex-col justify0-center items-center">

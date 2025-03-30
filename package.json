@@ -17,6 +17,7 @@
     "vite-plugin-solid": "^2.11.6"
   },
   "dependencies": {
+    "@solidjs/router": "^0.15.3",
     "@tailwindcss/vite": "^4.0.15",
     "daisyui": "^5.0.9",
     "firebase": "^11.5.0",

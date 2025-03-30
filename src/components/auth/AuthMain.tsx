@@ -1,8 +1,20 @@
+import { createEffect } from "solid-js";
 import { loginWithGoogle } from "../../firebase/auth.js";
 import Login from "./login/Login.jsx";
 import Register from "./register/Register.jsx";
+import { useAuth } from "../../context/AuthProvider.jsx";
+import { useNavigate } from "@solidjs/router";
 
 const AuthMain = () => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+
+  createEffect(() => {
+    if (user()) {
+      navigate("/", { replace: true });
+    }
+  });
+
   const handleLogin = () => {
     const loginModal = document.getElementById(
       "login-modal"
