@@ -1,4 +1,4 @@
-import { createSignal, Show, type Component } from "solid-js";
+import { createEffect, createSignal, Show, type Component } from "solid-js";
 import styles from "./App.module.css";
 import Nav from "./components/Nav.jsx";
 import TasksList from "./components/TasksList.jsx";
@@ -9,7 +9,9 @@ import { AuthProvider, useAuth } from "./context/AuthProvider.jsx";
 
 const App: Component = () => {
   const user = useAuth();
-  console.log(user.user());
+  createEffect(() => {
+    console.log(user.user());
+  });
 
   return (
     <AuthProvider>
