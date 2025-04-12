@@ -6,7 +6,7 @@ const Home = () => {
   return (
     <div class="container mx-auto h-screen">
       <Island />
-      <MainView />
+      {/* <MainView /> */}
     </div>
   );
 };

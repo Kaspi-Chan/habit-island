@@ -24,7 +24,7 @@ const Register = () => {
   return (
     <AuthModal
       id="register-modal"
-      title="Registger"
+      title="Register"
       onSubmit={handleRegister}
       buttonText="Register">
       <div class="space-y-3 flex flex-col ">
