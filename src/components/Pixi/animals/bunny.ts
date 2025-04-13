@@ -6,7 +6,7 @@ import {
   Rectangle,
   Texture,
 } from "pixi.js";
-import { createFrames } from "../../../../utils/pixi/index.js";
+import { createFrames } from "../../../utils/pixi/index.js";
 
 export interface BunnyInitOptions {
   x?: number;

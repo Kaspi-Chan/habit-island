@@ -15,9 +15,9 @@ import {
 } from "pixi.js";
 import { Viewport } from "pixi-viewport";
 import { initDevtools } from "@pixi/devtools";
-import { addBunny, animateBunny } from "./animals/bunny/bunny.js";
-import { Bunny } from "./animals/bunny/BunnyClass.js";
-import { populateWithTrees } from "./foliage/trees/trees.js";
+import { Bunny } from "./animals/bunny.js";
+import { populateWithTrees } from "./foliage/trees.js";
+import { init } from "./setup.js";
 
 interface ParrotSprite extends AnimatedSprite {
   direction?: number;
@@ -25,21 +25,6 @@ interface ParrotSprite extends AnimatedSprite {
 
 function PixiComponent() {
   let container; // Reference to the container div
-
-  const addBackground = (app: Application) => {
-    const background = Sprite.from("backgroundNoTrees2");
-
-    background.anchor.set(0);
-    background.x = 0;
-    background.y = 0;
-    background.width = app.screen.width;
-    background.height = app.screen.height;
-    background.scale.set(3);
-
-    app.stage.addChild(background);
-
-    return background;
-  };
 
   const initParrot = async (viewport: Viewport) => {
     const atlasData = {
@@ -140,65 +125,13 @@ function PixiComponent() {
     parrot.y = baseY + Math.sin(timer.elapsedMS / 1000) * amplitude;
   };
 
-  const preload = async () => {
-    const assets = [
-      { alias: "background", src: "tiles/island-bg.png" },
-      { alias: "backgroundNoTrees", src: "tiles/bg-no-trees.png" },
-      { alias: "backgroundNoTrees2", src: "tiles/bg-no-trees2.png" },
-      { alias: "tree", src: "trees/Autumn.png" },
-      { alias: "parrot", src: "animals/ParrotFly.png" },
-      { alias: "bunnyJump", src: "animals/BunnyJump.png" },
-      { alias: "bunnySleep", src: "animals/BunnySleep.png" },
-      { alias: "treeGreen", src: "trees/AnimatedTreeCoolColor.png" },
-    ];
-
-    await Assets.load(assets);
-  };
-
-  const setup = async (app: Application) => {
-    await app.init({
-      resizeTo: container,
-      backgroundColor: "#000333",
-      resolution: window.devicePixelRatio || 1,
-      autoDensity: true,
-    });
-  };
-
   onMount(() => {
     (async () => {
-      const app = new Application();
-      TextureSource.defaultOptions.scaleMode = "nearest";
-
-      await setup(app);
-      await preload();
-
-      const tilemapSprite = addBackground(app);
-
-      const viewport = new Viewport({
-        screenWidth: container!.clientWidth,
-        screenHeight: container!.clientHeight,
-        worldWidth: tilemapSprite.width,
-        worldHeight: tilemapSprite.height,
-        events: app.renderer.events,
-      });
-      viewport.addChild(tilemapSprite);
-      viewport.clampZoom({
-        minWidth: viewport.worldWidth / 3,
-        maxWidth: viewport.worldWidth,
-        minHeight: viewport.worldHeight / 3,
-        maxHeight: viewport.worldHeight,
-      });
-      app.stage.addChild(viewport);
-      viewport.drag().pinch().wheel().decelerate();
-      viewport.clamp({ direction: "all" });
+      const { app, viewport } = await init(container!);
 
       // parrot
       const parrot = await initParrot(viewport);
       app.ticker.add((ticker) => animateParrot(app, ticker, parrot));
-
-      // bunny
-      const bunny = await addBunny(viewport);
-      app.ticker.add(() => animateBunny(app, bunny));
 
       populateWithTrees(viewport);
 
@@ -233,8 +166,6 @@ function PixiComponent() {
       BunnyClass.play("jump");
 
       BunnyClass.clickToToggle();
-      app.ticker.add(() => animateBunny(app, BunnyClass));
-
       viewport.addChild(BunnyClass);
 
       initDevtools({ app });
