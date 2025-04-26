@@ -2,6 +2,7 @@ import { Viewport } from "pixi-viewport";
 import {
   AnimatedSprite,
   Assets,
+  ObservablePoint,
   Rectangle,
   Texture,
   TextureSource,
@@ -32,7 +33,6 @@ export function createFrames(
 }
 
 export const createAnimatedSprite = (
-  viewport: Viewport,
   source: string,
   totalFrames: number,
   frameWidth: number,
@@ -57,9 +57,6 @@ export const createAnimatedSprite = (
   animatedSprite.scale.set(scale);
   animatedSprite.position.set(x, y);
   animatedSprite.anchor.set(0.5);
-
-  animatedSprite.play();
-  viewport.addChild(animatedSprite);
 
   return animatedSprite;
 };

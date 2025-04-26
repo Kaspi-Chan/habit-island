@@ -35,8 +35,7 @@ const animatedTrees = [
 export const populateWithTrees = (viewport: Viewport) => {
   animatedTrees.forEach((tree) => {
     const animationSpeed = Math.random() * 0.1 + 0.05; // Random speed between 0.05 and 0.15
-    createAnimatedSprite(
-      viewport,
+    const animatedTree = createAnimatedSprite(
       "treeGreen",
       16,
       64,
@@ -46,5 +45,8 @@ export const populateWithTrees = (viewport: Viewport) => {
       3,
       animationSpeed
     );
+
+    viewport.addChild(animatedTree);
+    animatedTree.play();
   });
 };

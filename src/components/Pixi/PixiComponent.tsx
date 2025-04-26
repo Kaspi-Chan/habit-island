@@ -12,12 +12,14 @@ import {
   Container,
   Point,
   Texture,
+  Rectangle,
 } from "pixi.js";
 import { Viewport } from "pixi-viewport";
 import { initDevtools } from "@pixi/devtools";
-import { Bunny } from "./animals/bunny.js";
 import { populateWithTrees } from "./foliage/trees.js";
 import { init } from "./setup.js";
+import { Bunny } from "./animals/Bunny/Bunny.js";
+import { AnimalState } from "./animals/Animal.js";
 
 interface ParrotSprite extends AnimatedSprite {
   direction?: number;
@@ -88,7 +90,10 @@ function PixiComponent() {
     const animatedSprite = new AnimatedSprite(
       spriteSheet.animations.fly
     ) as ParrotSprite;
-    viewport.addChild(animatedSprite);
+
+    const pixiContainer = new Container();
+    pixiContainer.addChild(animatedSprite);
+    viewport.addChild(pixiContainer);
 
     animatedSprite.play();
     animatedSprite.animationSpeed = 0.1;
@@ -133,41 +138,32 @@ function PixiComponent() {
       const parrot = await initParrot(viewport);
       app.ticker.add((ticker) => animateParrot(app, ticker, parrot));
 
+      const roamArea = new Rectangle(
+        0,
+        0,
+        viewport.worldWidth,
+        viewport.worldHeight
+      );
+
+      const bunny1 = new Bunny();
+      const bunny2 = new Bunny();
+      const bunny3 = new Bunny();
+      const bunny4 = new Bunny();
+      const bunny5 = new Bunny();
+
+      bunny1.startRandomBehavior(roamArea);
+      bunny2.startRandomBehavior(roamArea);
+      bunny3.startRandomBehavior(roamArea);
+      bunny4.startRandomBehavior(roamArea);
+      bunny5.startRandomBehavior(roamArea);
+
+      viewport.addChild(bunny1);
+      viewport.addChild(bunny2);
+      viewport.addChild(bunny3);
+      viewport.addChild(bunny4);
+      viewport.addChild(bunny5);
+
       populateWithTrees(viewport);
-
-      // class
-      const BunnyClass = new Bunny();
-      BunnyClass.init({
-        x: 100,
-        y: 550,
-        scale: { x: 2, y: 2 },
-        anchor: { x: 0.5, y: 0.5 },
-      });
-
-      await BunnyClass.defineAnimationFromURL(
-        "jump",
-        "bunnyJump",
-        0,
-        0,
-        11,
-        32,
-        32
-      );
-
-      await BunnyClass.defineAnimationFromURL(
-        "sleep",
-        "bunnySleep",
-        0,
-        0,
-        6,
-        32,
-        32
-      );
-      BunnyClass.play("jump");
-
-      BunnyClass.clickToToggle();
-      viewport.addChild(BunnyClass);
-
       initDevtools({ app });
       container!.appendChild(app.canvas);
     })();

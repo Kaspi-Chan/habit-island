@@ -25,14 +25,20 @@ export const init = async (container: HTMLElement) => {
 
 const preload = async () => {
   const assets = [
-    { alias: "background", src: "tiles/island-bg.png" },
-    { alias: "backgroundNoTrees", src: "tiles/bg-no-trees.png" },
+    // { alias: "background", src: "tiles/island-bg.png" },
+    // { alias: "backgroundNoTrees", src: "tiles/bg-no-trees.png" },
     { alias: "backgroundNoTrees2", src: "tiles/bg-no-trees2.png" },
     { alias: "tree", src: "trees/Autumn.png" },
-    { alias: "parrot", src: "animals/ParrotFly.png" },
-    { alias: "bunnyJump", src: "animals/BunnyJump.png" },
-    { alias: "bunnySleep", src: "animals/BunnySleep.png" },
     { alias: "treeGreen", src: "trees/AnimatedTreeCoolColor.png" },
+    // Parrot
+    { alias: "parrot", src: "animals/ParrotFly.png" },
+    // Bunny
+    { alias: "bunny-idle", src: "animals/bunny/Idle.png" },
+    { alias: "bunny-jump", src: "animals/bunny/jump.png" },
+    { alias: "bunny-lick", src: "animals/bunny/Liking.png" },
+    { alias: "bunny-run", src: "animals/bunny/run.png" },
+    { alias: "bunny-sleep", src: "animals/bunny/sleep.png" },
+    { alias: "bunny-play", src: "animals/bunny/play.png" },
   ];
 
   await Assets.load(assets);

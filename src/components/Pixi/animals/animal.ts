@@ -1,95 +1,188 @@
-import * as PIXI from "pixi.js";
+import {
+  Application,
+  AnimatedSprite,
+  Container,
+  Texture,
+  ObservablePoint,
+  Point,
+  Rectangle,
+  Ticker,
+} from "pixi.js";
+import { createAnimatedSprite, createFrames } from "../../../utils/pixi";
+import { WORLD_HEIGHT, WORLD_WIDTH } from "../config";
+import { getRandomKey, getRandomProperty } from "../../../utils/utils";
 
-// Define the possible states for the rabbit.
-type AnimalState = "idle" | "walking";
+interface AnimationConfig {
+  assetKey: string;
+  frameCount: number;
+  animationSpeed?: number;
+  scale?: number;
+  speed?: number;
+}
 
-// Utility function to get a random number between min and max.
-const randomBetween = (min: number, max: number): number => {
-  return Math.random() * (max - min) + min;
-};
+interface AnimalConfig {
+  width: number;
+  height: number;
+  scale: number;
+  animations: Record<string, AnimationConfig>;
+}
 
-class Animal {
-  sprite: PIXI.AnimatedSprite;
-  state: AnimalState = "idle";
-  targetPos: PIXI.Point = new PIXI.Point();
-  speed: number;
-  worldWidth: number;
-  worldHeight: number;
+export type AnimalState = "idle" | "sleep";
 
-  constructor(
-    sprite: PIXI.AnimatedSprite,
-    worldWidth: number,
-    worldHeight: number,
-    speed: number = 2
+export abstract class Animal<
+  State extends string = AnimalState
+> extends Container {
+  public animations: Record<string, AnimatedSprite> = {};
+  private currentState: State;
+
+  private target: Point | null = null;
+  private speed = 100; // pixels per second
+  private bounds!: Rectangle; // area to roam in
+  private minInterval = 5; // seconds
+  private maxInterval = 10; // seconds
+  private stateTimer?: number; // id of the setTimeout for next state
+  private moveTimer?: number; // id of the setTimeout for next move
+
+  constructor(cfg: AnimalConfig) {
+    super();
+
+    for (const [state, animConfig] of Object.entries(cfg.animations)) {
+      this.animations[state] = createAnimatedSprite(
+        animConfig.assetKey,
+        animConfig.frameCount,
+        cfg.width,
+        cfg.height,
+        0,
+        0,
+        cfg.scale,
+        animConfig.animationSpeed || 1
+      );
+      this.animations[state].visible = false;
+      this.addChild(this.animations[state]);
+    }
+
+    // Init animation
+    this.currentState = "idle" as State;
+    this.animations[this.currentState].visible = true;
+    this.animations[this.currentState].play();
+
+    // set random position
+    this.position.set(
+      Math.random() * (WORLD_WIDTH - 256),
+      Math.random() * (WORLD_HEIGHT - 256)
+    );
+  }
+
+  play(state: State) {
+    if (state === this.currentState) return;
+    const old = this.animations[this.currentState];
+    old.stop();
+    old.visible = false;
+
+    const next = this.animations[state];
+    if (!next) {
+      console.warn(`No animation "${state}" on`, this);
+      return;
+    }
+    next.visible = true;
+    next.play();
+    this.currentState = state;
+  }
+
+  /**
+   * Kick off the random-behavior loop.
+   * @param roamArea the rectangle the animal is allowed to move in
+   */
+  public startRandomBehavior(roamArea: Rectangle) {
+    this.bounds = roamArea;
+    this.scheduleNextState(); // begin cycling states
+    Ticker.shared.add(this.moveOnTick, this); // begin moving when needed
+  }
+
+  public stopRandomBehavior() {
+    clearTimeout(this.stateTimer);
+    clearTimeout(this.moveTimer);
+    Ticker.shared.remove(this.moveOnTick, this);
+    this.target = null;
+  }
+
+  public startRandomMovement(
+    bounds: Rectangle,
+    minInterval = 1,
+    maxInterval = 3,
+    speed = 120
   ) {
-    this.sprite = sprite;
-    this.worldWidth = worldWidth;
-    this.worldHeight = worldHeight;
+    this.bounds = bounds;
+    this.minInterval = minInterval;
+    this.maxInterval = maxInterval;
     this.speed = speed;
-    // Start the behavior cycle.
-    this.scheduleNextAction();
+    this.scheduleNextMove();
+    // Ticker.shared.add(this.moveOnTick, this);
+    Ticker.shared.add(this.moveOnTick, this);
   }
 
-  // Schedule the next state change using a randomized delay.
-  scheduleNextAction() {
-    const delay = randomBetween(1000, 3000); // milliseconds between state changes
-    setTimeout(() => {
-      this.chooseNextAction();
-    }, delay);
+  /** stop moving (and cancel future moves) */
+  public stopRandomMovement() {
+    Ticker.shared.remove(this.moveOnTick, this);
+    this.target = null;
   }
 
-  // Decide what to do next based on the current state.
-  chooseNextAction() {
-    if (this.state === "idle") {
-      // From idle, decide to walk.
-      this.startWalking();
-    } else {
-      // If currently walking, switch to idle.
-      this.state = "idle";
-      this.sprite.gotoAndStop(0); // Reset to idle frame or first frame of idle animation.
-      // Optionally, you might have an idle animation so you could call play() instead.
-    }
-    // Schedule the next action regardless.
-    this.scheduleNextAction();
-  }
+  protected scheduleNextState() {
+    // prettier-ignore
+    const delay = Math.random() * (this.maxInterval - this.minInterval) + this.minInterval;
 
-  // Set a target within the world bounds and start walking.
-  startWalking() {
-    this.state = "walking";
-    // Pick a random target within the world bounds.
-    // Adjust these calculations to leave some margin if needed.
-    this.targetPos.x = randomBetween(0, this.worldWidth - this.sprite.width);
-    this.targetPos.y = randomBetween(0, this.worldHeight - this.sprite.height);
-    // Change animation to walking animation (if using multiple animations in your sprite sheet).
-    // For example, if you have multiple animations, switch to the proper textures here.
-    this.sprite.play(); // Assuming that .play() triggers the walking animation.
-    // Optionally, flip the sprite horizontally based on movement direction:
-    if (this.targetPos.x < this.sprite.x) {
-      this.sprite.scale.x = -Math.abs(this.sprite.scale.x);
-    } else {
-      this.sprite.scale.x = Math.abs(this.sprite.scale.x);
-    }
-  }
+    this.stateTimer = window.setTimeout(() => {
+      // play random animation
+      const next = getRandomKey(this.animations) as State;
+      this.play(next);
 
-  // Call this from your main PIXI update/ticker loop with the delta time.
-  update(delta: number) {
-    if (this.state === "walking") {
-      // Calculate the distance to the target.
-      const dx = this.targetPos.x - this.sprite.x;
-      const dy = this.targetPos.y - this.sprite.y;
-      const distance = Math.sqrt(dx * dx + dy * dy);
-
-      if (distance < 1) {
-        // Reached the target, transition to idle.
-        this.state = "idle";
-        this.sprite.gotoAndStop(0);
-      } else {
-        // Normalize movement vector for smooth movement.
-        const moveX = (dx / distance) * this.speed * delta;
-        const moveY = (dy / distance) * this.speed * delta;
-        this.sprite.x += moveX;
-        this.sprite.y += moveY;
+      switch (next) {
+        case "run":
+          this.speed = 120;
+          this.pickNewTarget();
+          break;
+        case "jump":
+          this.speed = 80;
+          this.pickNewTarget();
+          break;
+        default:
+          clearTimeout(this.moveTimer);
+          this.target = null;
+          break;
       }
+
+      // then pick another state down the line
+      this.scheduleNextState();
+    }, delay * 1000);
+  }
+
+  private pickNewTarget() {
+    const x = this.bounds.x + Math.random() * this.bounds.width;
+    const y = this.bounds.y + Math.random() * this.bounds.height;
+    this.target = new Point(x, y);
+
+    // set rotation
+    this.scale.x = this.x >= x ? -1 : 1;
+  }
+
+  private moveOnTick() {
+    if (!this.target) return;
+
+    // convert frames to seconds (assumes default 60 FPS)
+    const secondsElapsed = Ticker.shared.deltaTime / 60;
+    const step = this.speed * secondsElapsed;
+    const deltaX = this.target.x - this.x;
+    const deltaY = this.target.y - this.y;
+    const dist = Math.hypot(deltaX, deltaY);
+
+    // overshot the step
+    if (dist < this.speed * secondsElapsed) {
+      this.position.set(this.target.x, this.target.y);
+      this.target = null;
+    } else {
+      // move toward it
+      this.x += (deltaX / dist) * step;
+      this.y += (deltaY / dist) * step;
     }
   }
 }
