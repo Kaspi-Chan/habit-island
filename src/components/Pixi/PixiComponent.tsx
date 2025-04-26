@@ -20,6 +20,9 @@ import { populateWithTrees } from "./foliage/trees.js";
 import { init } from "./setup.js";
 import { Bunny } from "./animals/Bunny/Bunny.js";
 import { AnimalState } from "./animals/Animal.js";
+import { Capybara } from "./animals/Capybara/Capybara.js";
+import { Parrot } from "./animals/Parrot/Parrot.js";
+import { Fox } from "./animals/Fox/Fox.js";
 
 interface ParrotSprite extends AnimatedSprite {
   direction?: number;
@@ -134,36 +137,40 @@ function PixiComponent() {
     (async () => {
       const { app, viewport } = await init(container!);
 
-      // parrot
-      const parrot = await initParrot(viewport);
-      app.ticker.add((ticker) => animateParrot(app, ticker, parrot));
-
-      const roamArea = new Rectangle(
-        0,
-        0,
-        viewport.worldWidth,
-        viewport.worldHeight
-      );
-
       const bunny1 = new Bunny();
       const bunny2 = new Bunny();
       const bunny3 = new Bunny();
       const bunny4 = new Bunny();
       const bunny5 = new Bunny();
-
-      bunny1.startRandomBehavior(roamArea);
-      bunny2.startRandomBehavior(roamArea);
-      bunny3.startRandomBehavior(roamArea);
-      bunny4.startRandomBehavior(roamArea);
-      bunny5.startRandomBehavior(roamArea);
-
       viewport.addChild(bunny1);
       viewport.addChild(bunny2);
       viewport.addChild(bunny3);
       viewport.addChild(bunny4);
       viewport.addChild(bunny5);
 
+      const cappy1 = new Capybara();
+      const cappy2 = new Capybara();
+      const cappy3 = new Capybara();
+      viewport.addChild(cappy1);
+      viewport.addChild(cappy2);
+      viewport.addChild(cappy3);
+
+      const fox1 = new Fox();
+      const fox2 = new Fox();
+      const fox3 = new Fox();
+      viewport.addChild(fox1);
+      viewport.addChild(fox2);
+      viewport.addChild(fox3);
+
       populateWithTrees(viewport);
+
+      const parrot1 = new Parrot();
+      const parrot2 = new Parrot();
+      const parrot3 = new Parrot();
+      viewport.addChild(parrot1);
+      viewport.addChild(parrot2);
+      viewport.addChild(parrot3);
+
       initDevtools({ app });
       container!.appendChild(app.canvas);
     })();

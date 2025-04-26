@@ -1,26 +1,26 @@
 import { Animal, AnimalState } from "../Animal.js";
-import { bunnyAnimations } from "./animations.js";
+import { foxAnimations } from "./animations.js";
 
-export type BunnyState = AnimalState | "jump" | "run" | "lick" | "play";
+export type FoxState = AnimalState | "jump" | "sit" | "walk";
 
-export class Bunny extends Animal<BunnyState> {
+export class Fox extends Animal<FoxState> {
   constructor() {
     super({
       width: 32,
       height: 32,
-      scale: 1.5,
-      animations: bunnyAnimations,
+      scale: 3.25,
+      animations: foxAnimations,
     });
   }
 
-  protected onStateChanged(newState: BunnyState): void {
+  protected onStateChanged(newState: FoxState): void {
     switch (newState) {
-      case "run":
-        this.startMoving(50);
-        break;
-
       case "jump":
         this.startMoving(75);
+        break;
+
+      case "walk":
+        this.startMoving(50);
         break;
 
       default:

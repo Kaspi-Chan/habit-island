@@ -1,4 +1,5 @@
 import {
+  Assets,
   Application,
   AnimatedSprite,
   Container,
@@ -17,7 +18,6 @@ interface AnimationConfig {
   frameCount: number;
   animationSpeed?: number;
   scale?: number;
-  speed?: number;
 }
 
 interface AnimalConfig {
@@ -33,31 +33,53 @@ export abstract class Animal<
   State extends string = AnimalState
 > extends Container {
   public animations: Record<string, AnimatedSprite> = {};
-  private currentState: State;
+  private static framesCache: Record<string, Texture[]> = {};
 
-  private target: Point | null = null;
-  private speed = 100; // pixels per second
-  private bounds!: Rectangle; // area to roam in
+  private currentState!: State;
+  protected target: Point | null = null;
+  protected speed = 100; // pixels per second
+
   private minInterval = 5; // seconds
   private maxInterval = 10; // seconds
   private stateTimer?: number; // id of the setTimeout for next state
-  private moveTimer?: number; // id of the setTimeout for next move
+  private bounds = new Rectangle(0, 0, WORLD_WIDTH - 300, WORLD_HEIGHT - 300); // area to roam in
 
   constructor(cfg: AnimalConfig) {
     super();
+    this.init(cfg);
+    this.startRandomBehavior();
+  }
+
+  /**
+   * Creates the animated sprites and stores them in the animations object.
+   * When called for the first time also slices the png atlas
+   * @param cfg The sprites configurations
+   */
+  private init(cfg: AnimalConfig) {
+    const animationCache = (this.constructor as typeof Animal).framesCache;
 
     for (const [state, animConfig] of Object.entries(cfg.animations)) {
-      this.animations[state] = createAnimatedSprite(
-        animConfig.assetKey,
-        animConfig.frameCount,
-        cfg.width,
-        cfg.height,
-        0,
-        0,
-        cfg.scale,
-        animConfig.animationSpeed || 1
-      );
-      this.animations[state].visible = false;
+      const key = animConfig.assetKey;
+
+      if (!animationCache[key]) {
+        const texture = Assets.get(animConfig.assetKey);
+        animationCache[key] = createFrames(
+          texture,
+          cfg.width,
+          cfg.height,
+          0,
+          0,
+          animConfig.frameCount
+        );
+      }
+
+      const animation = new AnimatedSprite(animationCache[key]);
+      animation.animationSpeed = animConfig.animationSpeed || 1;
+      animation.scale.set(cfg.scale);
+      animation.anchor.set(0.5);
+      animation.visible = false;
+
+      this.animations[state] = animation;
       this.addChild(this.animations[state]);
     }
 
@@ -73,7 +95,7 @@ export abstract class Animal<
     );
   }
 
-  play(state: State) {
+  public play(state: State) {
     if (state === this.currentState) return;
     const old = this.animations[this.currentState];
     old.stop();
@@ -91,40 +113,9 @@ export abstract class Animal<
 
   /**
    * Kick off the random-behavior loop.
-   * @param roamArea the rectangle the animal is allowed to move in
    */
-  public startRandomBehavior(roamArea: Rectangle) {
-    this.bounds = roamArea;
+  public startRandomBehavior() {
     this.scheduleNextState(); // begin cycling states
-    Ticker.shared.add(this.moveOnTick, this); // begin moving when needed
-  }
-
-  public stopRandomBehavior() {
-    clearTimeout(this.stateTimer);
-    clearTimeout(this.moveTimer);
-    Ticker.shared.remove(this.moveOnTick, this);
-    this.target = null;
-  }
-
-  public startRandomMovement(
-    bounds: Rectangle,
-    minInterval = 1,
-    maxInterval = 3,
-    speed = 120
-  ) {
-    this.bounds = bounds;
-    this.minInterval = minInterval;
-    this.maxInterval = maxInterval;
-    this.speed = speed;
-    this.scheduleNextMove();
-    // Ticker.shared.add(this.moveOnTick, this);
-    Ticker.shared.add(this.moveOnTick, this);
-  }
-
-  /** stop moving (and cancel future moves) */
-  public stopRandomMovement() {
-    Ticker.shared.remove(this.moveOnTick, this);
-    this.target = null;
   }
 
   protected scheduleNextState() {
@@ -135,34 +126,38 @@ export abstract class Animal<
       // play random animation
       const next = getRandomKey(this.animations) as State;
       this.play(next);
-
-      switch (next) {
-        case "run":
-          this.speed = 120;
-          this.pickNewTarget();
-          break;
-        case "jump":
-          this.speed = 80;
-          this.pickNewTarget();
-          break;
-        default:
-          clearTimeout(this.moveTimer);
-          this.target = null;
-          break;
-      }
-
+      // ← hook into the subclass
+      this.onStateChanged(next);
       // then pick another state down the line
       this.scheduleNextState();
     }, delay * 1000);
   }
 
-  private pickNewTarget() {
+  /** default: do nothing.  Subclasses override */
+  protected abstract onStateChanged(_newState: State): void;
+
+  protected abstract onTargetReached(): void;
+
+  protected startMoving(speed: number) {
+    this.pickNewTarget(speed);
+
+    // begin moving when needed
+    Ticker.shared.add(this.moveOnTick, this);
+  }
+
+  protected stopMoving() {
+    this.target = null;
+    Ticker.shared.remove(this.moveOnTick, this);
+  }
+
+  /** helper for subclasses to ask for a new target */
+  private pickNewTarget(speed: number) {
     const x = this.bounds.x + Math.random() * this.bounds.width;
     const y = this.bounds.y + Math.random() * this.bounds.height;
     this.target = new Point(x, y);
 
-    // set rotation
-    this.scale.x = this.x >= x ? -1 : 1;
+    this.speed = speed;
+    this.scale.x = this.x >= x ? -1 : 1; // face direction
   }
 
   private moveOnTick() {
@@ -178,7 +173,8 @@ export abstract class Animal<
     // overshot the step
     if (dist < this.speed * secondsElapsed) {
       this.position.set(this.target.x, this.target.y);
-      this.target = null;
+      this.stopMoving();
+      this.onTargetReached();
     } else {
       // move toward it
       this.x += (deltaX / dist) * step;

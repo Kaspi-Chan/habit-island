@@ -39,6 +39,23 @@ const preload = async () => {
     { alias: "bunny-run", src: "animals/bunny/run.png" },
     { alias: "bunny-sleep", src: "animals/bunny/sleep.png" },
     { alias: "bunny-play", src: "animals/bunny/play.png" },
+    // Cappy
+    { alias: "cappy-idle", src: "animals/capybara/idle.png" },
+    { alias: "cappy-sleep", src: "animals/capybara/sleep.png" },
+    { alias: "cappy-walk", src: "animals/capybara/walk.png" },
+    { alias: "cappy-happy", src: "animals/capybara/happy.png" },
+    // parrot
+    { alias: "parrot-idle", src: "animals/parrot/idle.png" },
+    { alias: "parrot-sleep", src: "animals/parrot/sleep.png" },
+    { alias: "parrot-walk", src: "animals/parrot/walk.png" },
+    { alias: "parrot-sit", src: "animals/parrot/sit.png" },
+    { alias: "parrot-fly", src: "animals/parrot/fly.png" },
+    // fox
+    { alias: "fox-idle", src: "animals/fox/idle.png" },
+    { alias: "fox-jump", src: "animals/fox/jump.png" },
+    { alias: "fox-sit", src: "animals/fox/sit.png" },
+    { alias: "fox-sleep", src: "animals/fox/sleep.png" },
+    { alias: "fox-walk", src: "animals/fox/walk.png" },
   ];
 
   await Assets.load(assets);
