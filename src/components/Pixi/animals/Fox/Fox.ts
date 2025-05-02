@@ -1,9 +1,15 @@
+import { getRandomString } from "../../../../utils/utils.js";
+import { StateMachine } from "../../StateMachine.js";
 import { Animal, AnimalState } from "../Animal.js";
 import { foxAnimations } from "./animations.js";
 
 export type FoxState = AnimalState | "jump" | "sit" | "walk";
+const foxStates: FoxState[] = ["idle", "sleep", "jump", "sit", "walk"];
 
 export class Fox extends Animal<FoxState> {
+  private fsm!: StateMachine<FoxState>;
+  private initialState: FoxState = getRandomString(foxStates);
+
   constructor() {
     super({
       width: 32,
@@ -11,23 +17,53 @@ export class Fox extends Animal<FoxState> {
       scale: 3.25,
       animations: foxAnimations,
     });
+
+    this.zIndex = 30;
+    this.initStates();
   }
 
-  protected onStateChanged(newState: FoxState): void {
-    switch (newState) {
-      case "jump":
-        this.startMoving(75);
-        break;
-
-      case "walk":
-        this.startMoving(50);
-        break;
-
-      default:
-        // idle, sleep, lick, play → stop moving
-        this.stopMoving();
-        break;
-    }
+  protected initStates() {
+    this.fsm = new StateMachine<FoxState>(this.initialState, {
+      idle: {
+        duration: { min: 2, max: 7 },
+        onEnter: () => {
+          this.play("idle");
+        },
+        getNext: () => getRandomString(foxStates),
+      },
+      sleep: {
+        duration: { min: 30, max: 40 },
+        onEnter: () => {
+          this.play("sleep");
+        },
+        getNext: () => "idle",
+      },
+      sit: {
+        duration: { min: 3, max: 7 },
+        onEnter: () => {
+          this.play("sit");
+        },
+        getNext: () => getRandomString(foxStates),
+      },
+      jump: {
+        duration: { min: 2, max: 4 },
+        onEnter: () => {
+          this.play("jump");
+          this.startMoving(100);
+        },
+        onExit: () => this.stopMoving(),
+        getNext: () => (Math.random() < 0.5 ? "idle" : "walk"),
+      },
+      walk: {
+        duration: { min: 3, max: 6 },
+        onEnter: () => {
+          this.play("walk");
+          this.startMoving(50);
+        },
+        onExit: () => this.stopMoving(),
+        getNext: () => (Math.random() < 0.5 ? "idle" : "jump"),
+      },
+    });
   }
 
   protected onTargetReached() {

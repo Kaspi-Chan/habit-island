@@ -1,37 +1,51 @@
-type Transition<S extends string> = {
-  from: S;
-  to: S;
-  action?: () => void;
+export type StateConfig<S extends string> = {
+  /** how long (sec) to stay in this state */
+  duration: { min: number; max: number };
+  /** called once when entering */
+  onEnter?: () => void;
+  /** called once when exiting */
+  onExit?: () => void;
+  /** pick the next state */
+  getNext: () => S;
 };
 
-// Simple finite state machine
-class StateMachine<S extends string> {
-  private state: S;
-  private transitions: Transition<S>[];
+export class StateMachine<S extends string> {
+  private timerId?: number;
+  private current: S;
 
-  constructor(initialState: S, transitions: Transition<S>[]) {
-    this.state = initialState;
-    this.transitions = transitions;
+  constructor(initial: S, private config: Record<S, StateConfig<S>>) {
+    this.current = initial;
+    this.enterState(initial);
   }
 
-  public getState(): S {
-    return this.state;
+  private enterState(state: S) {
+    const cfg = this.config[state];
+    cfg.onEnter?.();
+    // schedule leave
+    const dur = cfg.duration;
+    const wait = Math.random() * (dur.max - dur.min) + dur.min;
+    this.timerId = window.setTimeout(() => this.transition(), wait * 1000);
   }
 
-  public canTransition(to: S): boolean {
-    return this.transitions.some((t) => t.from === this.state && t.to === to);
+  private exitState(state: S) {
+    this.config[state].onExit?.();
+    clearTimeout(this.timerId);
   }
 
-  public transition(to: S): void {
-    const t = this.transitions.find(
-      (t) => t.from === this.state && t.to === to
-    );
-    if (!t) return;
-    this.state = to;
-    t.action?.();
+  private transition() {
+    const prev = this.current;
+    const next = this.config[prev].getNext();
+    this.exitState(prev);
+    this.current = next;
+    this.enterState(next);
   }
 
-  public addTransition(transition: Transition<S>): void {
-    this.transitions.push(transition);
+  public get state() {
+    return this.current;
+  }
+
+  public stop() {
+    clearTimeout(this.timerId);
+    this.exitState(this.current);
   }
 }

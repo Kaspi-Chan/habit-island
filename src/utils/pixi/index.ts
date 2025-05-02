@@ -1,8 +1,6 @@
-import { Viewport } from "pixi-viewport";
 import {
   AnimatedSprite,
   Assets,
-  ObservablePoint,
   Rectangle,
   Texture,
   TextureSource,

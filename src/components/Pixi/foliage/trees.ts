@@ -46,6 +46,7 @@ export const populateWithTrees = (viewport: Viewport) => {
       animationSpeed
     );
 
+    animatedTree.zIndex = 50;
     viewport.addChild(animatedTree);
     animatedTree.play();
   });
