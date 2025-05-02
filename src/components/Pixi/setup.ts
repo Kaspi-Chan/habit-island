@@ -2,6 +2,8 @@ import { Viewport } from "pixi-viewport";
 import { Application, Sprite, TextureSource, Assets } from "pixi.js";
 import { WORLD_HEIGHT, WORLD_SCALE, WORLD_WIDTH } from "./config";
 
+export let viewport: Viewport | null = null;
+
 export const init = async (container: HTMLElement) => {
   const app = new Application();
   TextureSource.defaultOptions.scaleMode = "nearest";
@@ -18,20 +20,16 @@ export const init = async (container: HTMLElement) => {
   await preload();
 
   // add viewport background
-  const viewport = setupViewport(app, container);
+  viewport = setupViewport(app, container);
 
   return { app, viewport };
 };
 
 const preload = async () => {
   const assets = [
-    // { alias: "background", src: "tiles/island-bg.png" },
-    // { alias: "backgroundNoTrees", src: "tiles/bg-no-trees.png" },
     { alias: "backgroundNoTrees2", src: "tiles/bg-no-trees2.png" },
     { alias: "tree", src: "trees/Autumn.png" },
     { alias: "treeGreen", src: "trees/AnimatedTreeCoolColor.png" },
-    // Parrot
-    { alias: "parrot", src: "animals/ParrotFly.png" },
     // Bunny
     { alias: "bunny-idle", src: "animals/bunny/Idle.png" },
     { alias: "bunny-jump", src: "animals/bunny/jump.png" },
@@ -85,6 +83,7 @@ const setupViewport = (app: Application, container: HTMLElement) => {
   });
 
   app.stage.addChild(viewport);
+  // viewport.sortableChildren = true;
   viewport.drag().pinch().wheel().decelerate();
   viewport.clamp({ direction: "all" });
 

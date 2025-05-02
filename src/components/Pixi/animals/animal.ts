@@ -12,6 +12,8 @@ import {
 import { createAnimatedSprite, createFrames } from "../../../utils/pixi";
 import { WORLD_HEIGHT, WORLD_WIDTH } from "../config";
 import { getRandomKey, getRandomProperty } from "../../../utils/utils";
+import { StateConfig, StateMachine } from "../StateMachine";
+import { viewport } from "../setup";
 
 interface AnimationConfig {
   assetKey: string;
@@ -47,7 +49,8 @@ export abstract class Animal<
   constructor(cfg: AnimalConfig) {
     super();
     this.init(cfg);
-    this.startRandomBehavior();
+    // this.startRandomBehavior();
+    // this.fsm = new StateMachine(initial, stateDefs);
   }
 
   /**
@@ -95,6 +98,8 @@ export abstract class Animal<
     );
   }
 
+  protected abstract initStates(): void;
+
   public play(state: State) {
     if (state === this.currentState) return;
     const old = this.animations[this.currentState];
@@ -111,30 +116,8 @@ export abstract class Animal<
     this.currentState = state;
   }
 
-  /**
-   * Kick off the random-behavior loop.
-   */
-  public startRandomBehavior() {
-    this.scheduleNextState(); // begin cycling states
-  }
-
-  protected scheduleNextState() {
-    // prettier-ignore
-    const delay = Math.random() * (this.maxInterval - this.minInterval) + this.minInterval;
-
-    this.stateTimer = window.setTimeout(() => {
-      // play random animation
-      const next = getRandomKey(this.animations) as State;
-      this.play(next);
-      // ← hook into the subclass
-      this.onStateChanged(next);
-      // then pick another state down the line
-      this.scheduleNextState();
-    }, delay * 1000);
-  }
-
   /** default: do nothing.  Subclasses override */
-  protected abstract onStateChanged(_newState: State): void;
+  // protected abstract onStateChanged(_newState: State): void;
 
   protected abstract onTargetReached(): void;
 
@@ -158,6 +141,11 @@ export abstract class Animal<
 
     this.speed = speed;
     this.scale.x = this.x >= x ? -1 : 1; // face direction
+  }
+
+  protected updateStackingOrder(value: number) {
+    this.zIndex = value;
+    viewport!.sortChildren();
   }
 
   private moveOnTick() {
