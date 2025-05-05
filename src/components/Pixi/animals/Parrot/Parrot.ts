@@ -8,7 +8,6 @@ export type ParrotState = AnimalState | "fly" | "sit" | "walk";
 const parrotStates: ParrotState[] = ["idle", "sleep", "fly", "sit", "walk"];
 
 export class Parrot extends Animal<ParrotState> {
-  private fsm!: StateMachine<ParrotState>;
   private initialState: ParrotState = getRandomString(parrotStates);
   private prevState: ParrotState = "idle"; // next state to go to
 
@@ -80,7 +79,6 @@ export class Parrot extends Animal<ParrotState> {
         },
       },
       fly: {
-        duration: { min: 2, max: 4 },
         onEnter: () => {
           this.play("fly");
           this.updateStackingOrder(60);
@@ -93,7 +91,6 @@ export class Parrot extends Animal<ParrotState> {
         },
       },
       walk: {
-        duration: { min: 3, max: 6 },
         onEnter: () => {
           this.play("walk");
           this.startMoving(50);
@@ -106,9 +103,5 @@ export class Parrot extends Animal<ParrotState> {
         },
       },
     });
-  }
-
-  protected onTargetReached() {
-    this.play("idle");
   }
 }

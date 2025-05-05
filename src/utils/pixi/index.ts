@@ -1,10 +1,15 @@
 import {
   AnimatedSprite,
   Assets,
+  Container,
+  Graphics,
+  Point,
   Rectangle,
+  Sprite,
   Texture,
   TextureSource,
 } from "pixi.js";
+import { ICollision } from "../../types/pixi";
 
 export function createFrames(
   textureSource: TextureSource,
@@ -58,3 +63,35 @@ export const createAnimatedSprite = (
 
   return animatedSprite;
 };
+
+export function debugHitArea(
+  rect: Rectangle | any,
+  color = 0xff0000,
+  alpha = 0.3
+) {
+  let { x, y, width, height } = rect;
+
+  if (rect instanceof Rectangle) {
+    x = rect.x;
+    y = rect.y;
+    width = rect.width;
+    height = rect.height;
+  }
+
+  const g = new Graphics();
+  g.stroke({ width: 1, color: 0x000000 });
+  g.fill({ color, alpha });
+  g.rect(x, y, width, height);
+  g.fill();
+
+  return g;
+}
+
+export function getAbsoluteCords(localRect: Rectangle, container: Container) {
+  return {
+    x: localRect.x + container.x,
+    y: localRect.y + container.y,
+    width: localRect.width,
+    height: localRect.height,
+  };
+}

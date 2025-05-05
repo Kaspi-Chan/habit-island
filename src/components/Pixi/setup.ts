@@ -1,8 +1,22 @@
 import { Viewport } from "pixi-viewport";
-import { Application, Sprite, TextureSource, Assets } from "pixi.js";
-import { WORLD_HEIGHT, WORLD_SCALE, WORLD_WIDTH } from "./config";
+import {
+  Application,
+  Sprite,
+  TextureSource,
+  Assets,
+  Graphics,
+  Rectangle,
+  Container,
+} from "pixi.js";
+import {
+  FORBIDDEN_COORDINATES,
+  WORLD_HEIGHT,
+  WORLD_SCALE,
+  WORLD_WIDTH,
+} from "./config";
 
 export let viewport: Viewport | null = null;
+export const staticObsticles: Rectangle[] = [];
 
 export const init = async (container: HTMLElement) => {
   const app = new Application();
@@ -22,6 +36,14 @@ export const init = async (container: HTMLElement) => {
   // add viewport background
   viewport = setupViewport(app, container);
 
+  // debug grid
+  const debugGrid = drawGrid();
+  const debugGridSmall = drawGrid(16);
+  debugGrid.stroke({ width: 1, color: 0xcccccc });
+  debugGridSmall.stroke({ width: 1, color: 0xff0000 });
+  // app.stage.addChild(debugGridSmall);
+  // app.stage.addChild(debugGrid);
+
   return { app, viewport };
 };
 
@@ -30,6 +52,9 @@ const preload = async () => {
     { alias: "backgroundNoTrees2", src: "tiles/bg-no-trees2.png" },
     { alias: "tree", src: "trees/Autumn.png" },
     { alias: "treeGreen", src: "trees/AnimatedTreeCoolColor.png" },
+    // Bushes
+    { alias: "bush", src: "others/bush.png" },
+    { alias: "bush-small", src: "others/bush-small.png" },
     // Bunny
     { alias: "bunny-idle", src: "animals/bunny/Idle.png" },
     { alias: "bunny-jump", src: "animals/bunny/jump.png" },
@@ -89,3 +114,23 @@ const setupViewport = (app: Application, container: HTMLElement) => {
 
   return viewport;
 };
+
+function drawGrid(size: number = 32) {
+  const grid = new Graphics();
+  grid.stroke({ color: 0xffffff, pixelLine: true, width: 1 });
+
+  const width = WORLD_WIDTH;
+  const height = WORLD_HEIGHT;
+
+  // vertical lines
+  for (let x = 0; x <= width; x += size * WORLD_SCALE) {
+    grid.moveTo(x, 0).lineTo(x, height);
+  }
+
+  // horizontal lines
+  for (let y = 0; y <= height; y += size * WORLD_SCALE) {
+    grid.moveTo(0, y).lineTo(width, y);
+  }
+
+  return grid;
+}

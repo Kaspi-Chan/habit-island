@@ -7,8 +7,8 @@ export type FoxState = AnimalState | "jump" | "sit" | "walk";
 const foxStates: FoxState[] = ["idle", "sleep", "jump", "sit", "walk"];
 
 export class Fox extends Animal<FoxState> {
-  private fsm!: StateMachine<FoxState>;
   private initialState: FoxState = getRandomString(foxStates);
+  static hitAreaScale = { w: 0.6, h: 1 };
 
   constructor() {
     super({
@@ -46,16 +46,14 @@ export class Fox extends Animal<FoxState> {
         getNext: () => getRandomString(foxStates),
       },
       jump: {
-        duration: { min: 2, max: 4 },
         onEnter: () => {
           this.play("jump");
-          this.startMoving(100);
+          this.startMoving(75);
         },
         onExit: () => this.stopMoving(),
         getNext: () => (Math.random() < 0.5 ? "idle" : "walk"),
       },
       walk: {
-        duration: { min: 3, max: 6 },
         onEnter: () => {
           this.play("walk");
           this.startMoving(50);
@@ -64,9 +62,5 @@ export class Fox extends Animal<FoxState> {
         getNext: () => (Math.random() < 0.5 ? "idle" : "jump"),
       },
     });
-  }
-
-  protected onTargetReached() {
-    this.play("idle");
   }
 }

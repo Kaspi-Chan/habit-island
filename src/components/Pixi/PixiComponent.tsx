@@ -22,6 +22,7 @@ import { Bunny } from "./animals/Bunny/Bunny.js";
 import { Capybara } from "./animals/Capybara/Capybara.js";
 import { Parrot } from "./animals/Parrot/Parrot.js";
 import { Fox } from "./animals/Fox/Fox.js";
+import { loadBushes } from "./foliage/bushes.js";
 
 function PixiComponent() {
   let container; // Reference to the container div
@@ -29,6 +30,8 @@ function PixiComponent() {
   onMount(() => {
     (async () => {
       const { app, viewport } = await init(container!);
+      viewport.addChild(populateWithTrees());
+      // loadBushes(viewport);
 
       const cappy1 = new Capybara();
       const cappy2 = new Capybara();
@@ -55,14 +58,12 @@ function PixiComponent() {
       viewport.addChild(fox2);
       viewport.addChild(fox3);
 
-      const parrot1 = new Parrot();
-      const parrot2 = new Parrot();
-      const parrot3 = new Parrot();
-      viewport.addChild(parrot1);
-      viewport.addChild(parrot2);
-      viewport.addChild(parrot3);
-
-      populateWithTrees(viewport);
+      // const parrot1 = new Parrot();
+      // const parrot2 = new Parrot();
+      // const parrot3 = new Parrot();
+      // viewport.addChild(parrot1);
+      // viewport.addChild(parrot2);
+      // viewport.addChild(parrot3);
 
       // export viewport
       initDevtools({ app });

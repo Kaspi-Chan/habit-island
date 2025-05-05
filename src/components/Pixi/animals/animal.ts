@@ -1,19 +1,21 @@
 import {
   Assets,
-  Application,
   AnimatedSprite,
   Container,
   Texture,
-  ObservablePoint,
   Point,
   Rectangle,
   Ticker,
+  Graphics,
 } from "pixi.js";
-import { createAnimatedSprite, createFrames } from "../../../utils/pixi";
-import { WORLD_HEIGHT, WORLD_WIDTH } from "../config";
-import { getRandomKey, getRandomProperty } from "../../../utils/utils";
-import { StateConfig, StateMachine } from "../StateMachine";
-import { viewport } from "../setup";
+import {
+  createFrames,
+  debugHitArea,
+  getAbsoluteCords,
+} from "../../../utils/pixi";
+import { TILE_SIZE, WORLD_HEIGHT, WORLD_WIDTH } from "../config";
+import { staticObsticles, viewport } from "../setup";
+import { StateMachine } from "../StateMachine";
 
 interface AnimationConfig {
   assetKey: string;
@@ -31,26 +33,30 @@ interface AnimalConfig {
 
 export type AnimalState = "idle" | "sleep";
 
+const dynamicObstacles: Animal<any>[] = [];
+
 export abstract class Animal<
   State extends string = AnimalState
 > extends Container {
   public animations: Record<string, AnimatedSprite> = {};
   private static framesCache: Record<string, Texture[]> = {};
+  protected static hitAreaScale = { w: 1, h: 1 };
+  private hitbox = new Rectangle(0, 0, 0, 0);
 
   private currentState!: State;
   protected target: Point | null = null;
   protected speed = 100; // pixels per second
+  protected fsm!: StateMachine<State>;
 
-  private minInterval = 5; // seconds
-  private maxInterval = 10; // seconds
-  private stateTimer?: number; // id of the setTimeout for next state
+  private debugLayer = new Graphics();
   private bounds = new Rectangle(0, 0, WORLD_WIDTH - 300, WORLD_HEIGHT - 300); // area to roam in
 
   constructor(cfg: AnimalConfig) {
     super();
     this.init(cfg);
-    // this.startRandomBehavior();
-    // this.fsm = new StateMachine(initial, stateDefs);
+    this.createHitBox();
+    viewport!.addChild(this.debugLayer);
+    this.debugLayer.zIndex = 1000; // above everything else
   }
 
   /**
@@ -60,7 +66,6 @@ export abstract class Animal<
    */
   private init(cfg: AnimalConfig) {
     const animationCache = (this.constructor as typeof Animal).framesCache;
-
     for (const [state, animConfig] of Object.entries(cfg.animations)) {
       const key = animConfig.assetKey;
 
@@ -92,13 +97,35 @@ export abstract class Animal<
     this.animations[this.currentState].play();
 
     // set random position
-    this.position.set(
-      Math.random() * (WORLD_WIDTH - 256),
-      Math.random() * (WORLD_HEIGHT - 256)
-    );
+    const { x, y } = this.pickStartingPoint();
+    this.position.set(x, y);
   }
 
   protected abstract initStates(): void;
+
+  private pickStartingPoint() {
+    let x = 0;
+    let y = 0;
+
+    do {
+      x = Math.random() * (WORLD_WIDTH - 256);
+      y = Math.random() * (WORLD_HEIGHT - 256);
+    } while (!this.isValidStartingPoint(x, y));
+
+    return { x, y };
+  }
+
+  private isValidStartingPoint(px: number, py: number): boolean {
+    const isInStaticObstacle = staticObsticles.some((r) => r.contains(px, py));
+    const isInDynamicObstacle = dynamicObstacles.some((container) => {
+      const { x, y, width, height } = getAbsoluteCords(
+        container.hitbox,
+        container
+      );
+      return px >= x && px <= x + width && py >= y && py <= y + height;
+    });
+    return !isInStaticObstacle && !isInDynamicObstacle;
+  }
 
   public play(state: State) {
     if (state === this.currentState) return;
@@ -116,15 +143,19 @@ export abstract class Animal<
     this.currentState = state;
   }
 
-  /** default: do nothing.  Subclasses override */
-  // protected abstract onStateChanged(_newState: State): void;
+  protected updateStackingOrder(value: number) {
+    this.zIndex = value;
+    viewport!.sortChildren();
+  }
 
-  protected abstract onTargetReached(): void;
+  protected onObstacleHit() {
+    this.debugLayer.clear();
+    this.pickNewTarget(this.speed);
+  }
 
   protected startMoving(speed: number) {
     this.pickNewTarget(speed);
-
-    // begin moving when needed
+    // Start ticker
     Ticker.shared.add(this.moveOnTick, this);
   }
 
@@ -140,33 +171,118 @@ export abstract class Animal<
     this.target = new Point(x, y);
 
     this.speed = speed;
-    this.scale.x = this.x >= x ? -1 : 1; // face direction
-  }
+    this.scale.x = this.x >= this.target!.x ? -1 : 1; // face direction
 
-  protected updateStackingOrder(value: number) {
-    this.zIndex = value;
-    viewport!.sortChildren();
+    // debug
+    this.drawDebugPath();
   }
 
   private moveOnTick() {
     if (!this.target) return;
 
     // convert frames to seconds (assumes default 60 FPS)
-    const secondsElapsed = Ticker.shared.deltaTime / 60;
+    const secondsElapsed =
+      (Ticker.shared.elapsedMS / 1000) * Ticker.shared.speed;
     const step = this.speed * secondsElapsed;
     const deltaX = this.target.x - this.x;
     const deltaY = this.target.y - this.y;
     const dist = Math.hypot(deltaX, deltaY);
 
-    // overshot the step
-    if (dist < this.speed * secondsElapsed) {
-      this.position.set(this.target.x, this.target.y);
-      this.stopMoving();
+    // save current position
+    const currX = this.x;
+    const currY = this.y;
+
+    // get next position
+    let nextX = this.x + (deltaX / dist) * step;
+    let nextY = this.y + (deltaY / dist) * step;
+
+    // snap to target if close enough
+    if (dist <= step) {
+      nextX = this.target.x;
+      nextY = this.target.y;
       this.onTargetReached();
-    } else {
-      // move toward it
-      this.x += (deltaX / dist) * step;
-      this.y += (deltaY / dist) * step;
     }
+
+    // static obstacles - trees, rocks, etc.
+    for (const r of staticObsticles) {
+      if (r.contains(nextX, nextY)) {
+        return this.pickNewTarget(this.speed);
+      }
+    }
+
+    // Move
+    this.x = nextX;
+    this.y = nextY;
+
+    // // dynamic obstacles - other animals
+    for (const o of dynamicObstacles) {
+      if (o === this) continue; // skip self
+
+      if (this.intersects(o)) {
+        // move back to previous position
+        this.x = currX;
+        this.y = currY;
+        return this.pickNewTarget(this.speed);
+      }
+    }
+  }
+
+  private intersects(obstacle: Animal): boolean {
+    const a = getAbsoluteCords(this.hitbox, this);
+    const b = getAbsoluteCords(obstacle.hitbox, obstacle);
+
+    return !(
+      a.x + a.width <= b.x ||
+      a.x >= b.x + b.width ||
+      a.y + a.height <= b.y ||
+      a.y >= b.y + b.height
+    );
+  }
+
+  protected onTargetReached() {
+    this.debugLayer.clear();
+    this.fsm.goNext();
+  }
+
+  private createHitBox() {
+    const { w, h } = (this.constructor as typeof Animal).hitAreaScale;
+
+    const width = this.width * w;
+    const height = this.height * h;
+
+    const animalRect = new Rectangle(
+      -width * 0.5,
+      -height * 0.5,
+      width,
+      height
+    );
+
+    this.hitbox = animalRect;
+    dynamicObstacles.push(this);
+
+    this.addChild(debugHitArea(this.hitbox, 0x00ff00, 0.3)!);
+  }
+
+  private drawDebugPath() {
+    const g = this.debugLayer;
+    g.clear();
+
+    // if (this.path.length === 0) return;
+
+    // draw each waypoint as a small white dot
+    // for (const pt of this.path) {
+    //   g.circle(pt.x, pt.y, 4);
+    //   g.fill(0xffffff);
+    // }
+
+    // mark start (first) in green
+    const start = this.position;
+    g.circle(start.x, start.y, 6);
+    g.fill(0x00ff00);
+
+    // mark end (last) in red
+    const end = this.target;
+    g.circle(end!.x, end!.y, 6);
+    g.fill(0xff0000);
   }
 }

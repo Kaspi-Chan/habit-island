@@ -1,6 +1,6 @@
 export type StateConfig<S extends string> = {
   /** how long (sec) to stay in this state */
-  duration: { min: number; max: number };
+  duration?: { min: number; max: number };
   /** called once when entering */
   onEnter?: () => void;
   /** called once when exiting */
@@ -21,10 +21,12 @@ export class StateMachine<S extends string> {
   private enterState(state: S) {
     const cfg = this.config[state];
     cfg.onEnter?.();
-    // schedule leave
-    const dur = cfg.duration;
-    const wait = Math.random() * (dur.max - dur.min) + dur.min;
-    this.timerId = window.setTimeout(() => this.transition(), wait * 1000);
+
+    if (cfg.duration) {
+      const { max, min } = cfg.duration;
+      const wait = Math.random() * (max - min) + min;
+      this.timerId = window.setTimeout(() => this.transition(), wait * 1000);
+    }
   }
 
   private exitState(state: S) {
@@ -32,12 +34,17 @@ export class StateMachine<S extends string> {
     clearTimeout(this.timerId);
   }
 
-  private transition() {
+  public transition() {
     const prev = this.current;
     const next = this.config[prev].getNext();
     this.exitState(prev);
     this.current = next;
     this.enterState(next);
+  }
+
+  public goNext() {
+    clearTimeout(this.timerId);
+    this.transition();
   }
 
   public get state() {
