@@ -8,7 +8,7 @@ const capybaraStates: CapybaraState[] = ["idle", "sleep", "happy", "walk"];
 
 export class Capybara extends Animal<CapybaraState> {
   private initialState: CapybaraState = getRandomString(capybaraStates);
-  static hitAreaScale = { w: 0.8, h: 0.8 };
+  static hitBoxConfig = { w: 0.8, h: 0.8 };
 
   constructor() {
     super({

@@ -9,14 +9,15 @@ import {
   Container,
 } from "pixi.js";
 import {
-  FORBIDDEN_COORDINATES,
+  BOUNDS,
+  TILE_SIZE,
   WORLD_HEIGHT,
   WORLD_SCALE,
   WORLD_WIDTH,
 } from "./config";
 
 export let viewport: Viewport | null = null;
-export const staticObsticles: Rectangle[] = [];
+export const staticObstacles: Rectangle[] = [];
 
 export const init = async (container: HTMLElement) => {
   const app = new Application();
@@ -42,7 +43,8 @@ export const init = async (container: HTMLElement) => {
   debugGrid.stroke({ width: 1, color: 0xcccccc });
   debugGridSmall.stroke({ width: 1, color: 0xff0000 });
   // app.stage.addChild(debugGridSmall);
-  // app.stage.addChild(debugGrid);
+  setupBounds();
+  app.stage.addChild(debugGrid);
 
   return { app, viewport };
 };
@@ -52,6 +54,8 @@ const preload = async () => {
     { alias: "backgroundNoTrees2", src: "tiles/bg-no-trees2.png" },
     { alias: "tree", src: "trees/Autumn.png" },
     { alias: "treeGreen", src: "trees/AnimatedTreeCoolColor.png" },
+    { alias: "rock", src: "others/rock.png" },
+    { alias: "big-log", src: "others/big-log.png" },
     // Bushes
     { alias: "bush", src: "others/bush.png" },
     { alias: "bush-small", src: "others/bush-small.png" },
@@ -115,6 +119,18 @@ const setupViewport = (app: Application, container: HTMLElement) => {
   return viewport;
 };
 
+const setupBounds = () => {
+  BOUNDS.forEach((boundary) => {
+    staticObstacles.push(
+      new Rectangle(
+        boundary.x * TILE_SIZE,
+        boundary.y * TILE_SIZE,
+        boundary.size.x,
+        boundary.size.y
+      )
+    );
+  });
+};
 function drawGrid(size: number = 32) {
   const grid = new Graphics();
   grid.stroke({ color: 0xffffff, pixelLine: true, width: 1 });

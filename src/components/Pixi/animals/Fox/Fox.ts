@@ -8,7 +8,7 @@ const foxStates: FoxState[] = ["idle", "sleep", "jump", "sit", "walk"];
 
 export class Fox extends Animal<FoxState> {
   private initialState: FoxState = getRandomString(foxStates);
-  static hitAreaScale = { w: 0.6, h: 1 };
+  static hitBoxConfig = { w: 0.6, h: 0.5, offsetY: 25 };
 
   constructor() {
     super({

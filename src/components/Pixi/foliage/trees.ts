@@ -10,7 +10,7 @@ import {
   Rectangle,
   Sprite,
 } from "pixi.js";
-import { staticObsticles } from "../setup.js";
+import { staticObstacles } from "../setup.js";
 
 const animatedTrees = [
   { x: 0, y: 0 },
@@ -42,6 +42,7 @@ const animatedTrees = [
 
 export const populateWithTrees = () => {
   const treeContainer = new Container();
+  treeContainer.zIndex = 60;
 
   animatedTrees.forEach((tree) => {
     const screenX = tree.x * TILE_SIZE;
@@ -60,20 +61,16 @@ export const populateWithTrees = () => {
     );
 
     const hitbox = new Rectangle(
-      screenX - animatedTree.width / 4,
-      screenY,
-      TILE_SIZE,
-      TILE_SIZE
+      screenX - TILE_SIZE * 0.25,
+      screenY + TILE_SIZE * 0.5,
+      TILE_SIZE * 0.5,
+      TILE_SIZE * 0.5
     );
 
-    const container = new Container();
-    container.addChild(animatedTree);
-    container.addChild(debugHitArea(hitbox, 0x00ff00, 0.3)!);
+    staticObstacles.push(hitbox);
 
-    staticObsticles.push(hitbox);
-
-    animatedTree.zIndex = 50;
-    treeContainer.addChild(container);
+    // animatedTree
+    treeContainer.addChild(animatedTree);
     animatedTree.play();
   });
 

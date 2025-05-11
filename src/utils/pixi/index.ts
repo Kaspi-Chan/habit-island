@@ -9,7 +9,7 @@ import {
   Texture,
   TextureSource,
 } from "pixi.js";
-import { ICollision } from "../../types/pixi";
+import { SimpleRectangle } from "../../types/pixi";
 
 export function createFrames(
   textureSource: TextureSource,
@@ -94,4 +94,25 @@ export function getAbsoluteCords(localRect: Rectangle, container: Container) {
     width: localRect.width,
     height: localRect.height,
   };
+}
+
+export function isColliding(
+  a: Rectangle | SimpleRectangle,
+  b: Rectangle | SimpleRectangle
+) {
+  return !(
+    a.x + a.width < b.x ||
+    a.x > b.x + b.width ||
+    a.y + a.height < b.y ||
+    a.y > b.y + b.height
+  );
+}
+
+export function rectangleContains(rectangle: SimpleRectangle, point: Point) {
+  return (
+    point.x >= rectangle.x &&
+    point.x <= rectangle.x + rectangle.width &&
+    point.y >= rectangle.y &&
+    point.y <= rectangle.y + rectangle.height
+  );
 }

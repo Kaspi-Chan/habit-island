@@ -19,7 +19,7 @@ export class Parrot extends Animal<ParrotState> {
       animations: parrotAnimations,
     });
 
-    this.zIndex = 60; // Above trees and other animals
+    this.zIndex = 100; // Above trees and other animals
     this.initStates();
   }
 
@@ -31,7 +31,7 @@ export class Parrot extends Animal<ParrotState> {
         duration: { min: 2, max: 7 },
         onEnter: () => {
           this.play("idle");
-          this.updateStackingOrder(60);
+          this.updateStackingOrder(100);
         },
         getNext: () => {
           const nextState = getRandomString(parrotStates);
@@ -51,7 +51,7 @@ export class Parrot extends Animal<ParrotState> {
         duration: { min: 3, max: 7 },
         onEnter: () => {
           this.play("sit");
-          this.updateStackingOrder(60);
+          this.updateStackingOrder(100);
         },
         getNext: () => {
           const nextState = getRandomString(parrotStates);
@@ -71,7 +71,7 @@ export class Parrot extends Animal<ParrotState> {
         duration: { min: 30, max: 40 },
         onEnter: () => {
           this.play("sleep");
-          this.updateStackingOrder(60);
+          this.updateStackingOrder(100);
         },
         getNext: () => {
           this.prevState = "idle";
@@ -81,8 +81,9 @@ export class Parrot extends Animal<ParrotState> {
       fly: {
         onEnter: () => {
           this.play("fly");
-          this.updateStackingOrder(60);
+          this.updateStackingOrder(100);
           this.startMoving(120);
+          this.ignoreCollision = true;
         },
         onExit: () => this.stopMoving(),
         getNext: () => {
@@ -95,6 +96,7 @@ export class Parrot extends Animal<ParrotState> {
           this.play("walk");
           this.startMoving(50);
           this.updateStackingOrder(10);
+          this.ignoreCollision = false;
         },
         onExit: () => this.stopMoving(),
         getNext: () => {

@@ -17,12 +17,14 @@ import {
 import { Viewport } from "pixi-viewport";
 import { initDevtools } from "@pixi/devtools";
 import { populateWithTrees } from "./foliage/trees.js";
-import { init } from "./setup.js";
+import { init, staticObstacles } from "./setup.js";
 import { Bunny } from "./animals/Bunny/Bunny.js";
 import { Capybara } from "./animals/Capybara/Capybara.js";
 import { Parrot } from "./animals/Parrot/Parrot.js";
 import { Fox } from "./animals/Fox/Fox.js";
 import { loadBushes } from "./foliage/bushes.js";
+import { debugHitArea } from "../../utils/pixi/index.js";
+import { loadOtherObjects } from "./foliage/otherBounds.js";
 
 function PixiComponent() {
   let container; // Reference to the container div
@@ -31,7 +33,12 @@ function PixiComponent() {
     (async () => {
       const { app, viewport } = await init(container!);
       viewport.addChild(populateWithTrees());
-      // loadBushes(viewport);
+      loadBushes(viewport);
+      loadOtherObjects(viewport);
+
+      staticObstacles.forEach((obsticle) =>
+        viewport.addChild(debugHitArea(obsticle, 0x00ff00, 0.3)!)
+      );
 
       const cappy1 = new Capybara();
       const cappy2 = new Capybara();
@@ -58,12 +65,12 @@ function PixiComponent() {
       viewport.addChild(fox2);
       viewport.addChild(fox3);
 
-      // const parrot1 = new Parrot();
-      // const parrot2 = new Parrot();
-      // const parrot3 = new Parrot();
-      // viewport.addChild(parrot1);
-      // viewport.addChild(parrot2);
-      // viewport.addChild(parrot3);
+      const parrot1 = new Parrot();
+      const parrot2 = new Parrot();
+      const parrot3 = new Parrot();
+      viewport.addChild(parrot1);
+      viewport.addChild(parrot2);
+      viewport.addChild(parrot3);
 
       // export viewport
       initDevtools({ app });

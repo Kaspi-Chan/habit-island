@@ -12,10 +12,14 @@ import {
   createFrames,
   debugHitArea,
   getAbsoluteCords,
+  isColliding,
+  rectangleContains,
 } from "../../../utils/pixi";
-import { TILE_SIZE, WORLD_HEIGHT, WORLD_WIDTH } from "../config";
-import { staticObsticles, viewport } from "../setup";
+import { WORLD_HEIGHT, WORLD_WIDTH } from "../config";
+import { staticObstacles, viewport } from "../setup";
 import { StateMachine } from "../StateMachine";
+import { clamp, isWithinRange } from "../../../utils/utils";
+import { SimpleRectangle } from "../../../types/pixi";
 
 interface AnimationConfig {
   assetKey: string;
@@ -31,8 +35,16 @@ interface AnimalConfig {
   animations: Record<string, AnimationConfig>;
 }
 
-export type AnimalState = "idle" | "sleep";
+export interface HitBoxConfig {
+  w?: number;
+  h?: number;
+  /** horizontal shift, in pixels (or as a fraction — up to you) */
+  offsetX?: number;
+  /** vertical shift, in pixels (or as a fraction — up to you) */
+  offsetY?: number;
+}
 
+export type AnimalState = "idle" | "sleep";
 const dynamicObstacles: Animal<any>[] = [];
 
 export abstract class Animal<
@@ -40,21 +52,28 @@ export abstract class Animal<
 > extends Container {
   public animations: Record<string, AnimatedSprite> = {};
   private static framesCache: Record<string, Texture[]> = {};
-  protected static hitAreaScale = { w: 1, h: 1 };
+  static hitBoxConfig: HitBoxConfig = {
+    w: 1,
+    h: 1,
+    offsetX: 0,
+    offsetY: 0,
+  };
   private hitbox = new Rectangle(0, 0, 0, 0);
-
   private currentState!: State;
   protected target: Point | null = null;
   protected speed = 100; // pixels per second
   protected fsm!: StateMachine<State>;
-
+  protected ignoreCollision = false;
   private debugLayer = new Graphics();
-  private bounds = new Rectangle(0, 0, WORLD_WIDTH - 300, WORLD_HEIGHT - 300); // area to roam in
 
   constructor(cfg: AnimalConfig) {
     super();
     this.init(cfg);
     this.createHitBox();
+    // set random position
+    const { x, y } = this.pickStartingPoint();
+    this.position.set(x, y);
+    // debug points
     viewport!.addChild(this.debugLayer);
     this.debugLayer.zIndex = 1000; // above everything else
   }
@@ -95,10 +114,6 @@ export abstract class Animal<
     this.currentState = "idle" as State;
     this.animations[this.currentState].visible = true;
     this.animations[this.currentState].play();
-
-    // set random position
-    const { x, y } = this.pickStartingPoint();
-    this.position.set(x, y);
   }
 
   protected abstract initStates(): void;
@@ -108,23 +123,45 @@ export abstract class Animal<
     let y = 0;
 
     do {
-      x = Math.random() * (WORLD_WIDTH - 256);
-      y = Math.random() * (WORLD_HEIGHT - 256);
+      x = Math.random() * WORLD_WIDTH;
+      y = Math.random() * WORLD_HEIGHT;
     } while (!this.isValidStartingPoint(x, y));
 
     return { x, y };
   }
 
+  private pickRandomPoint() {
+    let x = 0,
+      y = 0,
+      dx = 0;
+
+    do {
+      x = Math.random() * WORLD_WIDTH;
+      y = Math.random() * WORLD_HEIGHT;
+      dx = Math.abs(x - this.x);
+    } while (!this.isValidStartingPoint(x, y) && dx < 200);
+
+    return { x, y };
+  }
+
   private isValidStartingPoint(px: number, py: number): boolean {
-    const isInStaticObstacle = staticObsticles.some((r) => r.contains(px, py));
-    const isInDynamicObstacle = dynamicObstacles.some((container) => {
-      const { x, y, width, height } = getAbsoluteCords(
-        container.hitbox,
-        container
-      );
-      return px >= x && px <= x + width && py >= y && py <= y + height;
-    });
-    return !isInStaticObstacle && !isInDynamicObstacle;
+    const oldX = this.x,
+      oldY = this.y;
+    this.x = px;
+    this.y = py;
+
+    const worldHit = getAbsoluteCords(this.hitbox, this);
+
+    this.x = oldX;
+    this.y = oldY;
+
+    return (
+      !staticObstacles.some((r) => isColliding(r, worldHit)) &&
+      !dynamicObstacles.some((r) => {
+        const otherWorldHit = getAbsoluteCords(r.hitbox, r);
+        return isColliding(worldHit, otherWorldHit);
+      })
+    );
   }
 
   public play(state: State) {
@@ -155,7 +192,6 @@ export abstract class Animal<
 
   protected startMoving(speed: number) {
     this.pickNewTarget(speed);
-    // Start ticker
     Ticker.shared.add(this.moveOnTick, this);
   }
 
@@ -164,10 +200,8 @@ export abstract class Animal<
     Ticker.shared.remove(this.moveOnTick, this);
   }
 
-  /** helper for subclasses to ask for a new target */
   private pickNewTarget(speed: number) {
-    const x = this.bounds.x + Math.random() * this.bounds.width;
-    const y = this.bounds.y + Math.random() * this.bounds.height;
+    const { x, y } = this.pickRandomPoint();
     this.target = new Point(x, y);
 
     this.speed = speed;
@@ -180,12 +214,99 @@ export abstract class Animal<
   private moveOnTick() {
     if (!this.target) return;
 
-    // convert frames to seconds (assumes default 60 FPS)
-    const secondsElapsed =
-      (Ticker.shared.elapsedMS / 1000) * Ticker.shared.speed;
+    let { moveX, moveY, step, currX, currY } = this.computeMoveDeltas();
+    // move
+    this.x += moveX;
+    this.y += moveY;
+
+    // get hitbox in world coordinates
+    let myHitbox = getAbsoluteCords(this.hitbox, this);
+
+    // snap to target if close enough
+    if (rectangleContains(myHitbox, this.target)) {
+      return this.onTargetReached();
+    }
+
+    if (this.ignoreCollision) return;
+
+    // handle static collision
+    for (const r of staticObstacles) {
+      if (!isColliding(myHitbox, r)) continue;
+      // undo movement
+      this.x = currX;
+      this.y = currY;
+
+      const xIsInRange = isWithinRange(this.x, this.target.x, 50 + this.width);
+      const yIsInRange = isWithinRange(this.y, this.target.y, 50 + this.height);
+
+      if (xIsInRange && yIsInRange) {
+        return this.onTargetReached();
+      }
+
+      if (xIsInRange) {
+        const offsetBy = this.x > this.target.x ? -50 : 50;
+        this.target.x = this.offSetTarget(this.target.x + offsetBy);
+      } else if (yIsInRange) {
+        const offsetBy = this.y > this.target.y ? -50 : 50;
+        this.target.y = this.offSetTarget(this.target.y + offsetBy);
+      }
+
+      // see by which axis we collide first
+      const verticalFirst = Math.abs(moveX) > Math.abs(moveY);
+      if (verticalFirst) {
+        moveY = this.checkCollisionByAxis("y", moveY, r);
+        moveX = this.checkCollisionByAxis("x", moveX, r);
+      } else {
+        moveX = this.checkCollisionByAxis("x", moveX, r);
+        moveY = this.checkCollisionByAxis("y", moveY, r);
+      }
+
+      // Movement resolution
+      if (moveX === 0 && moveY === 0) {
+        this.x = currX;
+        this.y = currY;
+        return this.pickNewTarget(this.speed);
+      }
+
+      // boostFactor between 0 (no boost) and 1 (full boost)
+      const boostFactor = 0.25;
+      if (moveX === 0) {
+        const orig = Math.abs(moveY);
+        const boosted = orig + (step - orig) * boostFactor;
+        moveY = Math.sign(moveY) * boosted;
+      } else if (moveY === 0) {
+        const orig = Math.abs(moveX);
+        const boosted = orig + (step - orig) * boostFactor;
+        moveX = Math.sign(moveX) * boosted;
+      }
+
+      this.x += moveX;
+      this.y += moveY;
+    }
+  }
+
+  offSetTarget(value: number) {
+    return clamp(value, 0, WORLD_WIDTH);
+  }
+
+  // prettier-ignore
+  checkCollisionByAxis(axis: "x" | "y",move: number,collisionRect: Rectangle | SimpleRectangle) {
+    this[axis] += move;
+    let myHitbox = getAbsoluteCords(this.hitbox, this);
+    if (isColliding(myHitbox, collisionRect)) {
+      this[axis] -= move; // undo horizontal movement
+      move = 0; // kill X movement
+    }
+
+    return move;
+  }
+
+  private computeMoveDeltas() {
+    // prettier-ignore
+    const secondsElapsed = (Ticker.shared.elapsedMS / 1000) * Ticker.shared.speed;
     const step = this.speed * secondsElapsed;
-    const deltaX = this.target.x - this.x;
-    const deltaY = this.target.y - this.y;
+    const deltaX = this.target!.x - this.x;
+    const deltaY = this.target!.y - this.y;
     const dist = Math.hypot(deltaX, deltaY);
 
     // save current position
@@ -193,41 +314,19 @@ export abstract class Animal<
     const currY = this.y;
 
     // get next position
-    let nextX = this.x + (deltaX / dist) * step;
-    let nextY = this.y + (deltaY / dist) * step;
+    let moveX = (deltaX / dist) * step;
+    let moveY = (deltaY / dist) * step;
 
-    // snap to target if close enough
-    if (dist <= step) {
-      nextX = this.target.x;
-      nextY = this.target.y;
-      this.onTargetReached();
-    }
-
-    // static obstacles - trees, rocks, etc.
-    for (const r of staticObsticles) {
-      if (r.contains(nextX, nextY)) {
-        return this.pickNewTarget(this.speed);
-      }
-    }
-
-    // Move
-    this.x = nextX;
-    this.y = nextY;
-
-    // // dynamic obstacles - other animals
-    for (const o of dynamicObstacles) {
-      if (o === this) continue; // skip self
-
-      if (this.intersects(o)) {
-        // move back to previous position
-        this.x = currX;
-        this.y = currY;
-        return this.pickNewTarget(this.speed);
-      }
-    }
+    return {
+      moveX,
+      moveY,
+      step,
+      currX,
+      currY,
+    };
   }
 
-  private intersects(obstacle: Animal): boolean {
+  private animalIntersects(obstacle: Animal): boolean {
     const a = getAbsoluteCords(this.hitbox, this);
     const b = getAbsoluteCords(obstacle.hitbox, obstacle);
 
@@ -245,19 +344,20 @@ export abstract class Animal<
   }
 
   private createHitBox() {
-    const { w, h } = (this.constructor as typeof Animal).hitAreaScale;
+    const {
+      w = 1,
+      h = 1,
+      offsetX = 0,
+      offsetY = 0,
+    } = (this.constructor as typeof Animal).hitBoxConfig;
 
     const width = this.width * w;
     const height = this.height * h;
 
-    const animalRect = new Rectangle(
-      -width * 0.5,
-      -height * 0.5,
-      width,
-      height
-    );
+    const x = -width / 2 + offsetX;
+    const y = -height / 2 + offsetY;
 
-    this.hitbox = animalRect;
+    this.hitbox = new Rectangle(x, y, width, height);
     dynamicObstacles.push(this);
 
     this.addChild(debugHitArea(this.hitbox, 0x00ff00, 0.3)!);
