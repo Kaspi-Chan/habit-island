@@ -1,35 +1,35 @@
 import { getRandomString } from "../../../../utils/utils.js";
 import { StateMachine } from "../../StateMachine.js";
 import { Animal, AnimalState, HitBoxConfig } from "../Animal.js";
-import { foxAnimations } from "./animations.js";
+import { catAnimations } from "./animations.js";
 
-export type FoxState = AnimalState | "jump" | "sit" | "walk";
-const foxStates: FoxState[] = ["idle", "sleep", "jump", "sit", "walk"];
+export type CatState = AnimalState | "jump" | "sit" | "run";
+const catStates: CatState[] = ["idle", "sleep", "jump", "sit", "run"];
 
-export class Fox extends Animal<FoxState> {
-  private initialState: FoxState = getRandomString(foxStates);
-  static hitBoxConfig: HitBoxConfig = { w: 0.6, h: 0.5, offsetY: 25 };
+export class Cat extends Animal<CatState> {
+  private initialState: CatState = getRandomString(catStates);
+  static hitBoxConfig: HitBoxConfig = { w: 0.8, h: 0.8, offsetY: 10 };
 
   constructor() {
     super({
       width: 32,
       height: 32,
-      scale: 3.25,
-      animations: foxAnimations,
+      scale: 2,
+      animations: catAnimations,
     });
 
-    this.zIndex = 30;
+    this.zIndex = 25;
     this.initStates();
   }
 
   protected initStates() {
-    this.fsm = new StateMachine<FoxState>(this.initialState, {
+    this.fsm = new StateMachine<CatState>(this.initialState, {
       idle: {
         duration: { min: 2, max: 7 },
         onEnter: () => {
           this.play("idle");
         },
-        getNext: () => getRandomString(foxStates),
+        getNext: () => getRandomString(catStates),
       },
       sleep: {
         duration: { min: 30, max: 40 },
@@ -43,23 +43,23 @@ export class Fox extends Animal<FoxState> {
         onEnter: () => {
           this.play("sit");
         },
-        getNext: () => getRandomString(foxStates),
+        getNext: () => getRandomString(catStates),
       },
       jump: {
         onEnter: () => {
           this.play("jump");
-          this.startMoving(75);
+          this.startMoving(60);
         },
         onExit: () => this.stopMoving(),
-        getNext: () => (Math.random() < 0.5 ? "idle" : "walk"),
+        getNext: () => (Math.random() < 0.5 ? "idle" : "run"),
       },
-      walk: {
+      run: {
         onEnter: () => {
-          this.play("walk");
-          this.startMoving(50);
+          this.play("run");
+          this.startMoving(70);
         },
         onExit: () => this.stopMoving(),
-        getNext: () => (Math.random() < 0.5 ? "idle" : "jump"),
+        getNext: () => (Math.random() < 0.5 ? "idle" : "sit"),
       },
     });
   }

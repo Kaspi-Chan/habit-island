@@ -38,9 +38,7 @@ interface AnimalConfig {
 export interface HitBoxConfig {
   w?: number;
   h?: number;
-  /** horizontal shift, in pixels (or as a fraction — up to you) */
   offsetX?: number;
-  /** vertical shift, in pixels (or as a fraction — up to you) */
   offsetY?: number;
 }
 
@@ -125,7 +123,7 @@ export abstract class Animal<
     do {
       x = Math.random() * WORLD_WIDTH;
       y = Math.random() * WORLD_HEIGHT;
-    } while (!this.isValidStartingPoint(x, y));
+    } while (!this.isValidPoint(x, y));
 
     return { x, y };
   }
@@ -139,14 +137,14 @@ export abstract class Animal<
       x = Math.random() * WORLD_WIDTH;
       y = Math.random() * WORLD_HEIGHT;
       dx = Math.abs(x - this.x);
-    } while (!this.isValidStartingPoint(x, y) && dx < 200);
+    } while (!this.isValidPoint(x, y) || dx < 200);
 
-    return { x, y };
+    return new Point(x, y);
   }
 
-  private isValidStartingPoint(px: number, py: number): boolean {
-    const oldX = this.x,
-      oldY = this.y;
+  private isValidPoint(px: number, py: number): boolean {
+    // prettier-ignore
+    const oldX = this.x, oldY = this.y;
     this.x = px;
     this.y = py;
 
@@ -156,7 +154,7 @@ export abstract class Animal<
     this.y = oldY;
 
     return (
-      !staticObstacles.some((r) => isColliding(r, worldHit)) &&
+      !staticObstacles.some((r) => isColliding(worldHit, r)) &&
       !dynamicObstacles.some((r) => {
         const otherWorldHit = getAbsoluteCords(r.hitbox, r);
         return isColliding(worldHit, otherWorldHit);
@@ -201,8 +199,7 @@ export abstract class Animal<
   }
 
   private pickNewTarget(speed: number) {
-    const { x, y } = this.pickRandomPoint();
-    this.target = new Point(x, y);
+    this.target = this.pickRandomPoint();
 
     this.speed = speed;
     this.scale.x = this.x >= this.target!.x ? -1 : 1; // face direction
@@ -244,11 +241,17 @@ export abstract class Animal<
       }
 
       if (xIsInRange) {
-        const offsetBy = this.x > this.target.x ? -50 : 50;
-        this.target.x = this.offSetTarget(this.target.x + offsetBy);
+        const by = this.x > this.target.x ? -50 : 50;
+        if (!this.isOffsetReachable("x", by)) {
+          console.log("not reachable papi: ", this, this.target);
+          this.onTargetReached();
+        }
       } else if (yIsInRange) {
-        const offsetBy = this.y > this.target.y ? -50 : 50;
-        this.target.y = this.offSetTarget(this.target.y + offsetBy);
+        const by = this.y > this.target.y ? -50 : 50;
+        if (!this.isOffsetReachable("y", by)) {
+          console.log("not reachable papi: ", this, this.target);
+          this.onTargetReached();
+        }
       }
 
       // see by which axis we collide first
@@ -285,8 +288,17 @@ export abstract class Animal<
     }
   }
 
-  offSetTarget(value: number) {
-    return clamp(value, 0, WORLD_WIDTH);
+  private isOffsetReachable(coord: "x" | "y", by: number): boolean {
+    const bound = coord === "x" ? WORLD_WIDTH : WORLD_HEIGHT;
+    const old = this.target![coord];
+    const next = clamp(old + by, 0, bound);
+
+    if (next === old) {
+      return false;
+    }
+
+    this.target![coord] = next;
+    return true;
   }
 
   // prettier-ignore

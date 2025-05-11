@@ -1,6 +1,6 @@
 import { getRandomString } from "../../../../utils/utils.js";
 import { StateMachine } from "../../StateMachine.js";
-import { Animal, AnimalState } from "../Animal.js";
+import { Animal, AnimalState, HitBoxConfig } from "../Animal.js";
 import { capybaraAnimations } from "./animations.js";
 
 export type CapybaraState = AnimalState | "happy" | "walk";
@@ -8,7 +8,7 @@ const capybaraStates: CapybaraState[] = ["idle", "sleep", "happy", "walk"];
 
 export class Capybara extends Animal<CapybaraState> {
   private initialState: CapybaraState = getRandomString(capybaraStates);
-  static hitBoxConfig = { w: 0.8, h: 0.8 };
+  static hitBoxConfig: HitBoxConfig = { w: 0.6, h: 0.6 };
 
   constructor() {
     super({

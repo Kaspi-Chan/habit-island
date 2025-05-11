@@ -7,6 +7,6 @@ export const ROWS = WORLD_HEIGHT / TILE_SIZE; // 30
 export const COLS = WORLD_WIDTH / TILE_SIZE; // 30
 
 export const BOUNDS = [
-  { x: 0, y: 13, size: { x: TILE_SIZE * 7, y: TILE_SIZE * 2 } },
-  { x: 12, y: 2, size: { x: TILE_SIZE * 3, y: TILE_SIZE * 3 } },
+  { x: 0, y: 13, size: { x: TILE_SIZE * 6.7, y: TILE_SIZE * 2 } },
+  { x: 11.5, y: 2.5, size: { x: (TILE_SIZE / 2) * 8, y: (TILE_SIZE / 2) * 4 } },
 ];
