@@ -1,20 +1,20 @@
 import { getRandomString } from "../../../../utils/utils.js";
 import { StateMachine } from "../../StateMachine.js";
-import { Animal, AnimalState } from "../Animal.js";
+import { Animal, AnimalState, HitBoxConfig } from "../Animal.js";
 import { capybaraAnimations } from "./animations.js";
 
 export type CapybaraState = AnimalState | "happy" | "walk";
 const capybaraStates: CapybaraState[] = ["idle", "sleep", "happy", "walk"];
 
 export class Capybara extends Animal<CapybaraState> {
-  private fsm!: StateMachine<CapybaraState>;
   private initialState: CapybaraState = getRandomString(capybaraStates);
+  static hitBoxConfig: HitBoxConfig = { w: 0.6, h: 0.6 };
 
   constructor() {
     super({
       width: 64,
       height: 64,
-      scale: 2,
+      scale: 1.6,
       animations: capybaraAnimations,
     });
 
@@ -46,7 +46,6 @@ export class Capybara extends Animal<CapybaraState> {
         getNext: () => "idle",
       },
       walk: {
-        duration: { min: 2, max: 5 },
         onEnter: () => {
           this.play("walk");
           this.startMoving(60);
@@ -58,6 +57,6 @@ export class Capybara extends Animal<CapybaraState> {
   }
 
   protected onTargetReached() {
-    this.play("idle");
+    this.fsm.transition();
   }
 }

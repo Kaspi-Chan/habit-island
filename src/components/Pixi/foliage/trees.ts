@@ -1,53 +1,78 @@
-import { createAnimatedSprite } from "../../../utils/pixi/index.js";
-import { Viewport } from "pixi-viewport";
-import { WORLD_SCALE } from "../config.js";
-
-const scaleFactor = WORLD_SCALE * 32;
+import {
+  createAnimatedSprite,
+  debugHitArea,
+} from "../../../utils/pixi/index.js";
+import { COLS, ROWS, TILE_SIZE } from "../config.js";
+import {
+  AnimatedSprite,
+  Container,
+  Graphics,
+  Rectangle,
+  Sprite,
+} from "pixi.js";
+import { staticObstacles } from "../setup.js";
 
 const animatedTrees = [
-  { x: 0 * scaleFactor, y: 0 * scaleFactor },
-  { x: 1 * scaleFactor, y: 1 * scaleFactor },
-  { x: 3 * scaleFactor, y: 0 * scaleFactor },
-  { x: 3 * scaleFactor, y: 2 * scaleFactor },
-  { x: 6 * scaleFactor, y: 1 * scaleFactor },
-  { x: 8 * scaleFactor, y: 0 * scaleFactor },
-  { x: 8 * scaleFactor, y: 2 * scaleFactor },
-  { x: 12 * scaleFactor, y: 1 * scaleFactor },
-  { x: 15 * scaleFactor, y: 0 * scaleFactor },
-  { x: 13.5 * scaleFactor, y: -0.5 * scaleFactor },
+  { x: 0, y: 0 },
+  { x: 1, y: 1 },
+  { x: 3, y: 0 },
+  { x: 3, y: 2 },
+  { x: 6, y: 1 },
+  { x: 8, y: 0 },
+  { x: 8, y: 2 },
+  { x: 12, y: 1 },
+  { x: 15, y: 0 },
+  { x: 13.5, y: -0.5 },
   // 2nd row of trees
-  { x: 0, y: 6 * scaleFactor },
-  { x: 0, y: 8 * scaleFactor },
-  { x: 2 * scaleFactor, y: 7 * scaleFactor },
-  { x: 4 * scaleFactor, y: 5 * scaleFactor },
-  { x: 7 * scaleFactor, y: 6 * scaleFactor },
-  { x: 5 * scaleFactor, y: 8 * scaleFactor },
-  { x: 12 * scaleFactor, y: 5.5 * scaleFactor },
-  { x: 15 * scaleFactor, y: 6 * scaleFactor },
-  { x: 15 * scaleFactor, y: 8 * scaleFactor },
+  { x: 0, y: 6 },
+  { x: 0, y: 8 },
+  { x: 2, y: 7 },
+  { x: 4, y: 5 },
+  { x: 7, y: 6 },
+  { x: 5, y: 8 },
+  { x: 12, y: 5.5 },
+  { x: 15, y: 6 },
+  { x: 15, y: 8 },
   //   3rd row of trees
-  { x: 9 * scaleFactor, y: 15 * scaleFactor },
-  { x: 11 * scaleFactor, y: 15 * scaleFactor },
-  { x: 13 * scaleFactor, y: 15 * scaleFactor },
-  { x: 15 * scaleFactor, y: 15 * scaleFactor },
+  { x: 9, y: 15 },
+  { x: 11, y: 15 },
+  { x: 13, y: 15 },
+  { x: 15, y: 15 },
 ];
 
-export const populateWithTrees = (viewport: Viewport) => {
+export const populateWithTrees = () => {
+  const treeContainer = new Container();
+  treeContainer.zIndex = 60;
+
   animatedTrees.forEach((tree) => {
+    const screenX = tree.x * TILE_SIZE;
+    const screenY = tree.y * TILE_SIZE;
+
     const animationSpeed = Math.random() * 0.1 + 0.05; // Random speed between 0.05 and 0.15
     const animatedTree = createAnimatedSprite(
       "treeGreen",
       16,
       64,
       64,
-      tree.x,
-      tree.y,
+      screenX,
+      screenY,
       3,
       animationSpeed
     );
 
-    animatedTree.zIndex = 50;
-    viewport.addChild(animatedTree);
+    const hitbox = new Rectangle(
+      screenX - TILE_SIZE * 0.25,
+      screenY + TILE_SIZE * 0.5,
+      TILE_SIZE * 0.5,
+      TILE_SIZE * 0.5
+    );
+
+    staticObstacles.push(hitbox);
+
+    // animatedTree
+    treeContainer.addChild(animatedTree);
     animatedTree.play();
   });
+
+  return treeContainer;
 };

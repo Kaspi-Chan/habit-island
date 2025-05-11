@@ -14,7 +14,6 @@ const bunnyStates: BunnyState[] = [
 ];
 
 export class Bunny extends Animal<BunnyState> {
-  private fsm!: StateMachine<BunnyState>;
   private initialState: BunnyState = getRandomString(bunnyStates);
 
   constructor() {
@@ -46,7 +45,6 @@ export class Bunny extends Animal<BunnyState> {
         getNext: () => "idle",
       },
       run: {
-        duration: { min: 2, max: 5 },
         onEnter: () => {
           this.play("run");
           this.startMoving(100);
@@ -55,7 +53,6 @@ export class Bunny extends Animal<BunnyState> {
         getNext: () => "idle",
       },
       jump: {
-        duration: { min: 1, max: 3 },
         onEnter: () => {
           this.play("jump");
           this.startMoving(75);
@@ -81,6 +78,6 @@ export class Bunny extends Animal<BunnyState> {
   }
 
   protected onTargetReached() {
-    this.play("idle");
+    this.fsm.transition();
   }
 }

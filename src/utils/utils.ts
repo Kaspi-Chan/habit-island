@@ -11,3 +11,13 @@ export const getRandomKey = (obj: Object) => {
 export const getRandomString = <T>(array: T[]): T => {
   return array[Math.floor(Math.random() * array.length)];
 };
+
+export const isWithinRange = (
+  value: number,
+  reference: number,
+  range: number
+) => value >= reference - range && value <= reference + range;
+
+export const clamp = (value: number, min: number, max: number) => {
+  return Math.max(min, Math.min(max, value));
+};
