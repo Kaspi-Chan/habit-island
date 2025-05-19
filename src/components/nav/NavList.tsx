@@ -1,4 +1,4 @@
-import { logout } from "../firebase/auth.js";
+import { logout } from "../../firebase/auth.js";
 
 interface Props {
   open: boolean;

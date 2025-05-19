@@ -1,12 +1,11 @@
-import Island from "./Island.jsx";
 import MainView from "./MainView.jsx";
-import Nav from "./Nav.jsx";
+import Island from "./Island.jsx";
 
 const Home = () => {
   return (
     <div class="container mx-auto h-screen">
       <Island />
-      {/* <MainView /> */}
+      <MainView />
     </div>
   );
 };

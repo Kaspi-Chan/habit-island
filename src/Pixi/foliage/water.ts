@@ -1,16 +1,6 @@
-import {
-  createAnimatedSprite,
-  debugHitArea,
-} from "../../../utils/pixi/index.js";
-import { COLS, ROWS, TILE_SIZE } from "../config.js";
-import {
-  AnimatedSprite,
-  Container,
-  Graphics,
-  Rectangle,
-  Sprite,
-} from "pixi.js";
-import { staticObstacles } from "../setup.js";
+import { createAnimatedSprite } from "../../utils/pixi/index.js";
+import { TILE_SIZE } from "../config.js";
+import { Container } from "pixi.js";
 
 const waterTile = [
   { x: 12, y: 3 },

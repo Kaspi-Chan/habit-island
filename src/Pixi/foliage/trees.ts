@@ -1,7 +1,4 @@
-import {
-  createAnimatedSprite,
-  debugHitArea,
-} from "../../../utils/pixi/index.js";
+import { createAnimatedSprite, debugHitArea } from "../../utils/pixi/index.js";
 import { COLS, ROWS, TILE_SIZE } from "../config.js";
 import {
   AnimatedSprite,
@@ -20,7 +17,7 @@ const animatedTrees = [
   { x: 6, y: 1 },
   { x: 8, y: 0 },
   { x: 8, y: 2 },
-  { x: 12, y: 1 },
+  { x: 12, y: 0.7 },
   { x: 15, y: 0 },
   { x: 13.5, y: -0.5 },
   // 2nd row of trees

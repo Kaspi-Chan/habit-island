@@ -1,6 +1,6 @@
 import { createEffect, ParentComponent } from "solid-js";
 import { useNavigate } from "@solidjs/router";
-import Nav from "../Nav.jsx";
+import Nav from "../nav/Nav.jsx";
 import { useAuth } from "../../context/AuthProvider.jsx";
 
 const RouteGuard: ParentComponent = (props) => {

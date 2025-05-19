@@ -1,4 +1,4 @@
-import { getRandomString } from "../../../../utils/utils.js";
+import { getRandomString } from "../../../utils/utils.js";
 import { StateMachine } from "../../StateMachine.js";
 import { Animal, AnimalState } from "../Animal.js";
 import { bunnyAnimations } from "./animations.js";

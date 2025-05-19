@@ -1,4 +1,4 @@
-import { getRandomString } from "../../../../utils/utils.js";
+import { getRandomString } from "../../../utils/utils.js";
 import { StateMachine } from "../../StateMachine.js";
 import { Animal, AnimalState, HitBoxConfig } from "../Animal.js";
 import { catAnimations } from "./animations.js";

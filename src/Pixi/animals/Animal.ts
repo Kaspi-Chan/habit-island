@@ -14,12 +14,12 @@ import {
   getAbsoluteCords,
   isColliding,
   rectangleContains,
-} from "../../../utils/pixi";
+} from "../../utils/pixi";
 import { WORLD_HEIGHT, WORLD_WIDTH } from "../config";
 import { staticObstacles, viewport } from "../setup";
 import { StateMachine } from "../StateMachine";
-import { clamp, isWithinRange } from "../../../utils/utils";
-import { SimpleRectangle } from "../../../types/pixi";
+import { clamp, isWithinRange } from "../../utils/utils";
+import { SimpleRectangle } from "../../types/pixi";
 
 interface AnimationConfig {
   assetKey: string;
@@ -184,7 +184,7 @@ export abstract class Animal<
   }
 
   protected onObstacleHit() {
-    this.debugLayer.clear();
+    // this.debugLayer.clear();
     this.pickNewTarget(this.speed);
   }
 
@@ -205,7 +205,7 @@ export abstract class Animal<
     this.scale.x = this.x >= this.target!.x ? -1 : 1; // face direction
 
     // debug
-    this.drawDebugPath();
+    // this.drawDebugPath();
   }
 
   private moveOnTick() {
@@ -351,7 +351,7 @@ export abstract class Animal<
   }
 
   protected onTargetReached() {
-    this.debugLayer.clear();
+    // this.debugLayer.clear();
     this.fsm.goNext();
   }
 
