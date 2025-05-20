@@ -1,6 +1,14 @@
 const NewTaskBtn = () => {
+  const clickHanlder = () => {
+    const newTaskModal = document.getElementById(
+      "new-task-modal"
+    ) as HTMLDialogElement;
+
+    newTaskModal.show();
+  };
+
   return (
-    <button class="btn btn-square">
+    <button class="btn btn-square" onClick={clickHanlder}>
       <svg
         fill="currentColor"
         version="1.1"
@@ -12,8 +20,7 @@ const NewTaskBtn = () => {
         viewBox="0 0 45.402 45.402"
         stroke-width="2.5"
         stroke="currentColor"
-        class="size-[1.2em]"
-      >
+        class="size-[1.2em]">
         <path
           d="M41.267,18.557H26.832V4.134C26.832,1.851,24.99,0,22.707,0c-2.283,0-4.124,1.851-4.124,4.135v14.432H4.141
                 c-2.283,0-4.139,1.851-4.138,4.135c-0.001,1.141,0.46,2.187,1.207,2.934c0.748,0.749,1.78,1.222,2.92,1.222h14.453V41.27

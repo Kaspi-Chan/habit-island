@@ -37,13 +37,13 @@ const Register = () => {
             onInput={(e) => setUsername(e.currentTarget.value)}
             minlength="3"
             maxlength="30"
-            class="input input-neutral validator"
+            class="input input-neutral validator w-full"
           />
           <p class="validator-hint hidden w-full">Must be 3 to 30 characters</p>
         </div>
         <div class="flex flex-col justify0-center items-center">
           <input
-            class="input input-neutral validator"
+            class="input input-neutral validator w-full"
             type="email"
             value={email()}
             onInput={(e) => setEmail(e.currentTarget.value)}
@@ -55,7 +55,7 @@ const Register = () => {
         <div class="flex flex-col justify0-center items-center">
           <input
             type="password"
-            class="input input-neutral validator"
+            class="input input-neutral validator w-full"
             value={password()}
             onInput={(e) => setPassword(e.currentTarget.value)}
             required
@@ -76,7 +76,7 @@ const Register = () => {
         <div class="flex flex-col justify0-center items-center">
           <input
             type="password"
-            class="input input-neutral validator"
+            class="input input-neutral validator w-full"
             onInput={(e) => validatePassword(e.currentTarget)}
             required
             placeholder="Confirm password"

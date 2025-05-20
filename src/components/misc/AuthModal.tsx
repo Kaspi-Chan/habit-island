@@ -4,7 +4,7 @@ import { createSignal, onMount, ParentProps } from "solid-js";
 type ModalFormProps = {
   id: string;
   title: string;
-  onSubmit: () => Promise<string | undefined>; // should return an error message or null if no error
+  onSubmit: (dialogRef: HTMLDialogElement) => Promise<string | undefined>; // should return an error message or null if no error
   buttonText?: string;
 } & ParentProps;
 
@@ -24,15 +24,13 @@ const AuthModal = (props: ModalFormProps) => {
 
   const handleSubmit = async (e: Event) => {
     e.preventDefault();
-    const err = await props.onSubmit();
-    if (err) {
-      setError(err);
-    }
+    const err = await props.onSubmit(dialogRef);
+    if (err) setError(err);
   };
 
   return (
     <dialog ref={dialogRef} id={props.id} class="modal">
-      <div class="modal-box">
+      <div class="modal-box flex flex-col justify-center items-center">
         <form method="dialog">
           <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
             ✕
@@ -41,7 +39,7 @@ const AuthModal = (props: ModalFormProps) => {
         <h2 class="text-2xl font-bold text-center">{props.title}</h2>
         <form
           method="post"
-          class="flex flex-col gap-6 px-4 py-6"
+          class="flex flex-col gap-6 px-4 py-6 w-full max-w-sm"
           onSubmit={handleSubmit}>
           {props.children}
           <div
