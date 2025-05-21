@@ -1,6 +1,6 @@
 import { createSignal } from "solid-js";
 import { registerWithEmail } from "../../../firebase/auth.js";
-import AuthModal from "../../misc/AuthModal.jsx";
+import FormModal from "../../misc/FormModal.jsx";
 
 const Register = () => {
   const [username, setUsername] = createSignal("");
@@ -22,7 +22,7 @@ const Register = () => {
   };
 
   return (
-    <AuthModal
+    <FormModal
       id="register-modal"
       title="Register"
       onSubmit={handleRegister}
@@ -88,7 +88,7 @@ const Register = () => {
           <p class="validator-hint hidden w-full">*Passwords do not match</p>
         </div>
       </div>
-    </AuthModal>
+    </FormModal>
   );
 };
 

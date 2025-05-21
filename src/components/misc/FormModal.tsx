@@ -6,16 +6,20 @@ type ModalFormProps = {
   title: string;
   onSubmit: (dialogRef: HTMLDialogElement) => Promise<string | undefined>; // should return an error message or null if no error
   buttonText?: string;
+  onReset?: () => void;
 } & ParentProps;
 
-const AuthModal = (props: ModalFormProps) => {
+const FormModal = (props: ModalFormProps) => {
   let dialogRef!: HTMLDialogElement;
   const [error, setError] = createSignal<string | null>(null);
 
   const resetForm = () => {
     setError(null);
     const form = dialogRef.querySelector("form[method='post']");
-    if (form instanceof HTMLFormElement) form.reset();
+    if (form instanceof HTMLFormElement) {
+      form.reset();
+      props.onReset?.();
+    }
   };
 
   onMount(() => {
@@ -36,10 +40,10 @@ const AuthModal = (props: ModalFormProps) => {
             ✕
           </button>
         </form>
-        <h2 class="text-2xl font-bold text-center">{props.title}</h2>
+        <h2 class="text-2xl font-bold text-center mb-6">{props.title}</h2>
         <form
           method="post"
-          class="flex flex-col gap-6 px-4 py-6 w-full"
+          class="flex flex-col gap-6  w-full"
           onSubmit={handleSubmit}>
           {props.children}
           <div
@@ -68,4 +72,4 @@ const AuthModal = (props: ModalFormProps) => {
   );
 };
 
-export default AuthModal;
+export default FormModal;

@@ -1,6 +1,6 @@
 import { createSignal, onMount } from "solid-js";
 import { loginWithEmail } from "../../../firebase/auth.js";
-import AuthModal from "../../misc/AuthModal.jsx";
+import FormModal from "../../misc/FormModal.jsx";
 
 const Login = () => {
   const [email, setEmail] = createSignal("");
@@ -13,7 +13,7 @@ const Login = () => {
   };
 
   return (
-    <AuthModal
+    <FormModal
       id="login-modal"
       title="Login"
       onSubmit={handleLogin}
@@ -54,7 +54,7 @@ const Login = () => {
           </p>
         </div>
       </div>
-    </AuthModal>
+    </FormModal>
   );
 };
 
