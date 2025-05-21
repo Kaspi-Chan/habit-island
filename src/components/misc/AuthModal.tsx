@@ -30,7 +30,7 @@ const AuthModal = (props: ModalFormProps) => {
 
   return (
     <dialog ref={dialogRef} id={props.id} class="modal">
-      <div class="modal-box flex flex-col justify-center items-center">
+      <div class="modal-box bg-base-200 flex flex-col justify-center items-center max-w-sm">
         <form method="dialog">
           <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
             ✕
@@ -39,7 +39,7 @@ const AuthModal = (props: ModalFormProps) => {
         <h2 class="text-2xl font-bold text-center">{props.title}</h2>
         <form
           method="post"
-          class="flex flex-col gap-6 px-4 py-6 w-full max-w-sm"
+          class="flex flex-col gap-6 px-4 py-6 w-full"
           onSubmit={handleSubmit}>
           {props.children}
           <div
@@ -59,7 +59,7 @@ const AuthModal = (props: ModalFormProps) => {
             </svg>
             <span>{error()}</span>
           </div>
-          <button class="btn btn-primary" type="submit">
+          <button class="btn btn-neutral" type="submit">
             {props.buttonText || "Submit"}
           </button>
         </form>

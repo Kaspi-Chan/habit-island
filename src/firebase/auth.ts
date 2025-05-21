@@ -11,7 +11,16 @@ import {
   updateProfile,
 } from "firebase/auth";
 import { getAuthErrorMessage } from "./ErrorHandler/index.js";
-import { doc, getDoc, serverTimestamp, setDoc } from "firebase/firestore";
+import {
+  collection,
+  doc,
+  getDoc,
+  serverTimestamp,
+  setDoc,
+  writeBatch,
+} from "firebase/firestore";
+import { DEFAULT_SKILLS } from "../config.js";
+import { initUserDocument } from "./firestore.js";
 
 export const registerWithEmail = async (
   email: string,
@@ -25,12 +34,9 @@ export const registerWithEmail = async (
       password
     );
     const user = userCredential.user;
-    await setDoc(doc(db, "users", user.uid), {
-      username: username,
-      email: user.email,
-      createdAt: serverTimestamp(),
-    });
+    const userRef = doc(db, "users", user.uid);
     await updateProfile(user, { displayName: username });
+    await initUserDocument(user, userRef);
   } catch (error) {
     if (error instanceof FirebaseError) {
       return getAuthErrorMessage(error.code);
@@ -56,13 +62,9 @@ export const loginWithGoogle = async (): Promise<UserCredential> => {
   const userRef = doc(db, "users", user.uid);
   const userSnap = await getDoc(userRef);
 
-  if (userSnap.exists()) return userCredential;
-
-  await setDoc(doc(db, "users", user.uid), {
-    username: user.displayName,
-    email: user.email,
-    createdAt: serverTimestamp(),
-  });
+  if (!userSnap.exists()) {
+    await initUserDocument(user, userRef);
+  }
 
   return userCredential;
 };

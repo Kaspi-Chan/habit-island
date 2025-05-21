@@ -9,8 +9,7 @@ import {
 } from "solid-js";
 import { onAuthStateChanged, User } from "firebase/auth";
 import { auth, db } from "../firebase/firebase.js";
-import { setUserInfo, Task } from "../components/store/userStore.js";
-import { collection, onSnapshot } from "firebase/firestore";
+import { subscribeToUserData } from "../firebase/firestore.js";
 
 interface AuthContextType {
   user: () => User | null;
@@ -31,15 +30,7 @@ export const AuthProvider: ParentComponent = (props) => {
     setUser(currentUser);
 
     if (!currentUser) return;
-
-    setUserInfo({ id: currentUser.uid, username: currentUser.displayName! });
-    const tasksCol = collection(db, "users", currentUser.uid, "tasks");
-    onSnapshot(tasksCol, (snapshot) => {
-      const list = snapshot.docs.map(
-        (d) => ({ id: d.id, ...d.data() } as Task)
-      );
-      setUserInfo("tasks", list);
-    });
+    subscribeToUserData(currentUser);
   });
 
   // Clean up subscription on unmount

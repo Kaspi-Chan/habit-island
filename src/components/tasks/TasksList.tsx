@@ -17,8 +17,9 @@ const TasksList = () => {
           <Task
             id={task.id}
             title={task.title}
-            category={task.category}
+            categories={task.categories}
             dueDate={task.dueDate}
+            xp={task.xp}
           />
         )}
       </For>

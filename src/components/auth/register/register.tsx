@@ -29,6 +29,7 @@ const Register = () => {
       buttonText="Register">
       <div class="space-y-3 flex flex-col ">
         <div class="flex flex-col justify0-center items-center">
+          <label class="label w-full">Username</label>
           <input
             type="text"
             placeholder="Username"
@@ -42,6 +43,7 @@ const Register = () => {
           <p class="validator-hint hidden w-full">Must be 3 to 30 characters</p>
         </div>
         <div class="flex flex-col justify0-center items-center">
+          <label class="label w-full">Email</label>
           <input
             class="input input-neutral validator w-full"
             type="email"
@@ -53,6 +55,7 @@ const Register = () => {
           <p class="validator-hint hidden w-full">Enter valid email address</p>
         </div>
         <div class="flex flex-col justify0-center items-center">
+          <label class="label w-full">Password</label>
           <input
             type="password"
             class="input input-neutral validator w-full"
@@ -74,6 +77,7 @@ const Register = () => {
           </p>
         </div>
         <div class="flex flex-col justify0-center items-center">
+          <label class="label w-full">Confirm password</label>
           <input
             type="password"
             class="input input-neutral validator w-full"

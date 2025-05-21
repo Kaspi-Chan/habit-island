@@ -20,6 +20,7 @@ const Login = () => {
       buttonText="Login">
       <div class="space-y-3 flex flex-col ">
         <div class="flex flex-col justify-center items-center">
+          <label class="label w-full">Email</label>
           <input
             class="input input-neutral validator w-full"
             type="email"
@@ -31,6 +32,7 @@ const Login = () => {
           <p class="validator-hint hidden w-full">Enter valid email address</p>
         </div>
         <div class="flex flex-col justify-center items-center">
+          <label class="label w-full">Password</label>
           <input
             type="password"
             class="input input-neutral validator w-full"
