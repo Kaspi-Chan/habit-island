@@ -18,12 +18,21 @@ export type skillType =
   | "Relationships & Social"
   | "Personal Growth & Purpose";
 
+export type motivation = 1 | 2 | 3 | 4 | 5;
+export type periodAmount = "1" | "2" | "3" | "4" | "5" | "6";
+export type periodKind = "days" | "weeks" | "months" | "years";
+export type repeatPeriod = { amount: periodAmount; kind: periodKind };
+
 export interface Task {
   id: string;
   title: string;
   categories: string[];
   xp: number;
-  dueDate: Timestamp;
+  dueDate: Timestamp | Date;
+  motivation: motivation;
+  repeat: boolean;
+  repeatPeriod?: repeatPeriod;
+  overdue: boolean;
 }
 
 export interface Skills {

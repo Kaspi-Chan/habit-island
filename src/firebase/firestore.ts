@@ -30,13 +30,17 @@ import { User } from "firebase/auth";
 import { DEFAULT_SKILLS, XP_PER_LEVEL } from "../config";
 import { produce } from "solid-js/store";
 import { assignTaskProperties } from "../gemini";
+import { getDay } from "../utils/utils";
 
 export const addTask = async (
   userId: string,
-  newTask: { title: string; date: Date }
+  newTask: Omit<Task, "categories" | "xp" | "id" | "overdue">
 ) => {
   // prompt gemini
-  const response = await assignTaskProperties(newTask.title);
+  const response = await assignTaskProperties(
+    newTask.title,
+    newTask.motivation
+  );
 
   // use try catch
   if (!response) {
@@ -52,7 +56,11 @@ export const addTask = async (
     title: newTask.title,
     categories: [...categories],
     xp: xp,
-    dueDate: Timestamp.fromDate(newTask.date),
+    dueDate: Timestamp.fromDate(newTask.dueDate as Date),
+    motivation: newTask.motivation,
+    repeat: newTask.repeat,
+    repeatPeriod: newTask.repeat ? newTask.repeatPeriod : null,
+    overdue: false,
     createdAt: serverTimestamp(),
   });
 };
@@ -61,24 +69,20 @@ export const removeTask = async (userId: string, taskId: string) => {
   await deleteDoc(doc(db, "users", userId, "tasks", taskId));
 };
 
-export const completeTaskAndAwardXp = async (
-  userId: string,
-  categories: string[],
-  xpAward: number
-) => {
-  if (categories.length === 0) return;
+export const completeTaskAndAwardXp = async (userId: string, task: Task) => {
+  if (task.categories.length === 0) return;
 
-  console.log(xpAward);
   const userRef = doc(db, "users", userId);
+  const taskRef = doc(db, "users", userId, "tasks", task.id);
   const skillsCol = collection(db, "users", userId, "skills");
-  const skillsQuery = query(skillsCol, where("name", "in", categories));
+  const skillsQuery = query(skillsCol, where("name", "in", task.categories));
 
   await runTransaction(db, async (tx) => {
     // Update user info
     const userSnap = await tx.get(userRef);
     if (!userSnap.exists()) throw new Error("User not found");
 
-    const newXp = userSnap.data().xp + xpAward * categories.length;
+    const newXp = userSnap.data().xp + task.xp * task.categories.length;
     const newLevel = Math.floor(newXp / XP_PER_LEVEL) + 1;
 
     tx.update(userRef, { xp: newXp, level: newLevel });
@@ -86,13 +90,24 @@ export const completeTaskAndAwardXp = async (
     const skillsSnap = await getDocs(skillsQuery);
     if (skillsSnap.empty) {
       throw new Error(
-        `No skills found for categories: ${categories.join(", ")}`
+        `No skills found for categories: ${task.categories.join(", ")}`
       );
+    }
+
+    // bump date of repeatable tasks
+    if (task.repeat && task.repeatPeriod) {
+      const newTaskDate = bumpTaskDate(task);
+
+      tx.update(taskRef, {
+        dueDate: Timestamp.fromDate(newTaskDate),
+      });
+    } else {
+      removeTask(userId, task.id);
     }
 
     // update every skill affected
     skillsSnap.docs.forEach((d) => {
-      const newXp = d.data().currentXP + xpAward;
+      const newXp = d.data().currentXP + task.xp;
       const newLevel = Math.floor(newXp / XP_PER_LEVEL) + 1;
 
       tx.update(d.ref, {
@@ -151,7 +166,16 @@ export const subscribeToUserData = (user: User) => {
   // subscribe to tasks
   const tasksCol = collection(db, "users", user.uid, "tasks");
   onSnapshot(tasksCol, (snapshot) => {
-    const list = snapshot.docs.map((d) => ({ id: d.id, ...d.data() } as Task));
+    const endOfDay = getDay(0);
+
+    const list = snapshot.docs.map((d) => {
+      const task = { id: d.id, ...d.data() } as Task;
+
+      const dueDate = (task.dueDate as Timestamp).toDate();
+      if (dueDate < endOfDay) task.overdue = true;
+
+      return task;
+    });
     setUserInfo("tasks", list);
   });
 
@@ -163,4 +187,31 @@ export const subscribeToUserData = (user: User) => {
   });
 
   console.log(userInfo);
+};
+
+const bumpTaskDate = (task: Task) => {
+  const oldDate = (task.dueDate as Timestamp).toDate();
+  const newDate = new Date();
+  switch (task.repeatPeriod!.kind) {
+    case "days":
+      newDate.setDate(oldDate.getDate() + parseInt(task.repeatPeriod!.amount));
+      break;
+    case "weeks":
+      newDate.setDate(
+        oldDate.getDate() + 7 * parseInt(task.repeatPeriod!.amount)
+      );
+      break;
+    case "months":
+      newDate.setMonth(
+        oldDate.getMonth() + parseInt(task.repeatPeriod!.amount)
+      );
+      break;
+    case "years":
+      newDate.setFullYear(
+        oldDate.getFullYear() + parseInt(task.repeatPeriod!.amount)
+      );
+      break;
+  }
+
+  return newDate;
 };

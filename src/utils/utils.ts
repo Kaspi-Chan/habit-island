@@ -21,3 +21,16 @@ export const isWithinRange = (
 export const clamp = (value: number, min: number, max: number) => {
   return Math.max(min, Math.min(max, value));
 };
+
+export const getDay = (after: number) => {
+  const now = new Date();
+  return new Date(
+    now.getFullYear(),
+    now.getMonth(),
+    now.getDate() + after,
+    0,
+    0,
+    0,
+    0
+  );
+};
