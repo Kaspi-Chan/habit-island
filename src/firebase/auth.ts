@@ -19,7 +19,6 @@ import {
   setDoc,
   writeBatch,
 } from "firebase/firestore";
-import { DEFAULT_SKILLS } from "../config.js";
 import { initUserDocument } from "./firestore.js";
 
 export const registerWithEmail = async (

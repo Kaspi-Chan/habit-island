@@ -2,6 +2,7 @@ import { For } from "solid-js";
 import { completeTaskAndAwardXp, removeTask } from "../../firebase/firestore";
 import { userInfo, type Task } from "../store/userStore";
 import { Timestamp } from "firebase/firestore";
+import { COLORS } from "../../config";
 
 const Task = (props: Task) => {
   const handleTaskComplete = async () => {
@@ -21,7 +22,10 @@ const Task = (props: Task) => {
         <div class="flex gap-1 flex-wrap">
           <For each={props.categories}>
             {(category) => (
-              <div class="badge badge-soft badge-info text-xs sm:text-sm">
+              <div
+                class={`badge badge-soft ${
+                  COLORS[category] ?? "custom-skill"
+                } text-xs sm:text-sm`}>
                 {category}
               </div>
             )}

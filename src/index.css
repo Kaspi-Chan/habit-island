@@ -16,3 +16,81 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+/* Skill colors */
+/* XP */
+.fill-color.xp {
+  @apply bg-warning;
+}
+.track-color.xp {
+  @apply bg-warning/20;
+}
+.badge.xp {
+  @apply badge-warning;
+}
+
+/* Physical Health & Fitness */
+.fill-color.physical-health-fitness {
+  @apply bg-primary;
+}
+.track-color.physical-health-fitness {
+  @apply bg-primary/20;
+}
+.badge.physical-health-fitness {
+  @apply badge-primary;
+}
+
+/* Emotional Well-Being */
+.fill-color.emotional-well-being {
+  @apply bg-accent;
+}
+.track-color.emotional-well-being {
+  @apply bg-accent/20;
+}
+.badge.emotional-well-being {
+  @apply badge-accent;
+}
+
+/* Career & Finances */
+.fill-color.career-finances {
+  @apply bg-info;
+}
+.track-color.career-finances {
+  @apply bg-info/20;
+}
+.badge.career-finances {
+  @apply badge-info;
+}
+
+/* Relationships & Social */
+.fill-color.relationships-social {
+  @apply bg-error;
+}
+.track-color.relationships-social {
+  @apply bg-error/20;
+}
+.badge.relationships-social {
+  @apply badge-error;
+}
+
+/* Personal Growth & Purpose */
+.fill-color.personal-growth-purpose {
+  @apply bg-success;
+}
+.track-color.personal-growth-purpose {
+  @apply bg-success/20;
+}
+.badge.personal-growth-purpose {
+  @apply badge-success;
+}
+
+/* Custom */
+.fill-color.custom-skill {
+  @apply bg-secondary;
+}
+.track-color.custom-skill {
+  @apply bg-secondary/20;
+}
+.badge.custom-skill {
+  @apply badge-secondary;
+}

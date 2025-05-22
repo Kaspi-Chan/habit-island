@@ -5,6 +5,7 @@ import Task from "./Task.jsx";
 import { userInfo } from "../store/userStore.js";
 import { Timestamp } from "firebase/firestore";
 import { getDay } from "../../utils/utils.js";
+import PlusIconBtn from "../misc/PlusIconBtn.jsx";
 
 const TasksList = () => {
   const [todayTasks, setTodayTasks] = createSignal<typeof userInfo.tasks>();
@@ -35,9 +36,8 @@ const TasksList = () => {
   return (
     <ul class="list bg-base-300 rounded-box shadow-md w-full gap-2 pb-8 relative top-4 overflow-y-scroll border-2 border-primary flex-1">
       <li class="p-4 pb-2 text-lg tracking-wide">Daily Tasks</li>
-      <li class="list-row items-center bg-base-100 mx-2">
+      <li class="list-row grid-cols-none bg-base-100 mx-2">
         <NewTaskBtn />
-        <span>Add new goal</span>
       </li>
       <For each={todayTasks()}>{(task) => <Task {...task} />}</For>
       <Show when={todayTasks()?.length === 0}>

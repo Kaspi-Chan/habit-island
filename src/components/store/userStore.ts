@@ -5,18 +5,15 @@ import {
   query,
   Timestamp,
 } from "firebase/firestore";
-import { createEffect } from "solid-js";
 import { createStore } from "solid-js/store";
-import { getUserData } from "../../utils/firebase";
-import { onAuthStateChanged } from "firebase/auth";
-import { auth, db } from "../../firebase/firebase";
 
 export type skillType =
   | "Physical Health & Fitness"
   | "Emotional Well-Being"
   | "Career & Finances"
   | "Relationships & Social"
-  | "Personal Growth & Purpose";
+  | "Personal Growth & Purpose"
+  | string;
 
 export type motivation = 1 | 2 | 3 | 4 | 5;
 export type periodAmount = "1" | "2" | "3" | "4" | "5" | "6";
@@ -35,7 +32,7 @@ export interface Task {
   overdue: boolean;
 }
 
-export interface Skills {
+export interface Skill {
   name: skillType;
   level: number;
   currentXP: number;
@@ -52,7 +49,7 @@ interface UserInfo {
   xp: number;
   level: number;
   tasks: Task[];
-  skills: Skills[];
+  skills: Skill[];
 }
 
 // Initialize store

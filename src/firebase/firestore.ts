@@ -22,7 +22,7 @@ import {
 import { db } from "./firebase";
 import {
   setUserInfo,
-  Skills,
+  Skill,
   Task,
   userInfo,
 } from "../components/store/userStore";
@@ -67,6 +67,13 @@ export const addTask = async (
 
 export const removeTask = async (userId: string, taskId: string) => {
   await deleteDoc(doc(db, "users", userId, "tasks", taskId));
+};
+
+export const addSkill = async (userId: string, skill: Skill) => {
+  const skillsCol = collection(db, "users", userId, "skills");
+  await addDoc(skillsCol, {
+    ...skill,
+  });
 };
 
 export const completeTaskAndAwardXp = async (userId: string, task: Task) => {
@@ -182,11 +189,9 @@ export const subscribeToUserData = (user: User) => {
   // subsribe to skills
   const skillsCol = collection(db, "users", user.uid, "skills");
   onSnapshot(skillsCol, (snapshot) => {
-    const list = snapshot.docs.map((d) => ({ ...d.data() } as Skills));
+    const list = snapshot.docs.map((d) => ({ ...d.data() } as Skill));
     setUserInfo("skills", list);
   });
-
-  console.log(userInfo);
 };
 
 const bumpTaskDate = (task: Task) => {
