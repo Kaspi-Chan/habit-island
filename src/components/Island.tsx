@@ -74,7 +74,7 @@ function Island() {
   });
 
   return (
-    <div class="flex justify-center items-center w-full h-8/12">
+    <div class="flex justify-center items-center w-full h-6/12 lg:h-full flex-1 ">
       <div class="w-full h-full max-w-[1440px] mx-auto" ref={container}></div>
     </div>
   );

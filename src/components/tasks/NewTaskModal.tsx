@@ -1,4 +1,4 @@
-import { createSignal, For, Show } from "solid-js";
+import { createSignal, For, Setter, Show } from "solid-js";
 import FormModal from "../misc/FormModal";
 import { addDoc, collection, Timestamp } from "firebase/firestore";
 import { db } from "../../firebase/firebase";
@@ -8,7 +8,7 @@ import Rating from "../misc/Rating";
 import { showToast } from "../store/toastStore";
 import { motivation, periodAmount, periodKind } from "../../types";
 
-const NewTaskModal = () => {
+const NewTaskModal = (props: { setShow: Setter<boolean> }) => {
   const today = () => new Date().toISOString().split("T")[0];
   const [title, setTitle] = createSignal("");
   const [date, setDate] = createSignal(today());
@@ -47,6 +47,8 @@ const NewTaskModal = () => {
       repeatCalendarRef.value = date();
     }
 
+    // setMotivation(3);
+    props.setShow(false);
     setRepeat(false);
   };
 

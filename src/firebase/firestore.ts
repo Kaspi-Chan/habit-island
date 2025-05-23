@@ -68,7 +68,7 @@ export const editTask = async (
 ) => {
   const { title, xp, categories, dueDate, motivation, repeat, repeatPeriod } =
     task;
-  const taskCol = doc(db, "users", userId, "tasks", task.id);
+  const taskDoc = doc(db, "users", userId, "tasks", task.id);
 
   let newXp = xp;
   if (reEval) {
@@ -80,7 +80,7 @@ export const editTask = async (
     }
   }
 
-  await updateDoc(taskCol, {
+  await updateDoc(taskDoc, {
     title: title,
     categories: [...categories],
     xp: newXp,
@@ -92,7 +92,8 @@ export const editTask = async (
 };
 
 export const removeTask = async (userId: string, taskId: string) => {
-  await deleteDoc(doc(db, "users", userId, "tasks", taskId));
+  const taskDoc = doc(db, "users", userId, "tasks", taskId);
+  await deleteDoc(taskDoc);
 };
 
 export const addSkill = async (userId: string, skill: Skill) => {
