@@ -1,5 +1,5 @@
 import { createSignal, For, Show } from "solid-js";
-import ProgressBar from "./ProgressBar.jsx";
+import ProgressBar from "./progressBar.jsx";
 import { setUserInfo, userInfo } from "../store/userStore.js";
 import PlusIconBtn from "../misc/PlusIconBtn.jsx";
 import { addSkill } from "../../firebase/firestore.js";

@@ -60,7 +60,7 @@ const EditTaskModal = (props: props) => {
   };
 
   const handleRemoveCategory = (name: string) => {
-    if (taskCategories().length === 1) return; // toast here
+    if (taskCategories().length === 1) return;
 
     setTaskCategories((prev) => prev.filter((category) => category !== name));
   };
@@ -146,8 +146,9 @@ const EditTaskModal = (props: props) => {
                 } text-xs`}>
                 <span>{category}</span>
                 <div
+                  tabIndex={0}
                   onClick={() => handleRemoveCategory(category)}
-                  class="opacity-0 group-hover:opacity-100 transition-opacity absolute -right-3 -top-3 w-10 h-10 grid place-items-center btn-square z-10">
+                  class="opacity-0 focus:opacity-100 group-hover:opacity-100 transition-opacity absolute -right-2 -top-2 w-8 h-8 grid place-items-center btn-square z-10">
                   x
                 </div>
               </div>
@@ -246,6 +247,7 @@ const EditTaskModal = (props: props) => {
           </button>
           <button
             onClick={handleRemoveTask}
+            type="button"
             class="btn btn-soft btn-error flex-1">
             Remove goal
           </button>

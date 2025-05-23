@@ -1,7 +1,10 @@
+import { Setter } from "solid-js";
 import PlusIconBtn from "../misc/PlusIconBtn";
 
-const NewTaskBtn = () => {
+const NewTaskBtn = (props: { setShow: Setter<boolean> }) => {
   const clickHanlder = () => {
+    props.setShow(true);
+
     const newTaskModal = document.getElementById(
       "new-task-modal"
     ) as HTMLDialogElement;

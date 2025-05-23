@@ -1,6 +1,6 @@
-import { createSignal } from 'solid-js';
+import { createSignal } from "solid-js";
 import HamburgerMenu from "./HamburgerMenu.jsx";
-import NavList from './NavList.jsx';
+import NavList from "./NavList.jsx";
 
 const Nav = () => {
   const [open, setOpen] = createSignal(false);
@@ -10,8 +10,8 @@ const Nav = () => {
   };
 
   return (
-    <div class="fixed right-0 navbar flex-col max-w-20 gap-2">
-      <HamburgerMenu toggleMenu={toggleMenu}/>
+    <div class="fixed right-0 navbar flex-col max-w-20 gap-2 z-10">
+      <HamburgerMenu toggleMenu={toggleMenu} />
       <NavList open={open()} />
     </div>
   );

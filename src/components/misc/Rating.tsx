@@ -1,5 +1,5 @@
 import { Accessor, Index, Setter } from "solid-js";
-import { motivation } from "../store/userStore";
+import { motivation } from "../../types";
 
 interface RatingProps {
   motivation: Accessor<motivation>;
@@ -16,7 +16,7 @@ const Rating = (props: RatingProps) => {
             type="radio"
             name="rating"
             class="mask mask-heart bg-primary"
-            aria-label="1 star"
+            aria-label={`${index} star`}
             checked={props.motivation() === index + 1}
             onInput={() => props.setMotivation((index + 1) as motivation)}
           />
