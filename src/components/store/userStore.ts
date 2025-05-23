@@ -5,6 +5,7 @@ import {
   query,
   Timestamp,
 } from "firebase/firestore";
+import { createSignal } from "solid-js";
 import { createStore } from "solid-js/store";
 
 export type skillType =
@@ -25,7 +26,7 @@ export interface Task {
   title: string;
   categories: string[];
   xp: number;
-  dueDate: Timestamp | Date;
+  dueDate: Timestamp;
   motivation: motivation;
   repeat: boolean;
   repeatPeriod?: repeatPeriod;
@@ -61,3 +62,5 @@ export const [userInfo, setUserInfo] = createStore<UserInfo>({
   tasks: [],
   skills: [],
 });
+
+export const [taskToEdit, setTaskToEdit] = createSignal<Task | null>(null);

@@ -64,13 +64,13 @@ body {
 
 /* Relationships & Social */
 .fill-color.relationships-social {
-  @apply bg-error;
+  @apply bg-[#f78a8e];
 }
 .track-color.relationships-social {
-  @apply bg-error/20;
+  @apply bg-[#f78a8e]/20;
 }
 .badge.relationships-social {
-  @apply badge-error;
+  --badge-color: #f78a8e;
 }
 
 /* Personal Growth & Purpose */

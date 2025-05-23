@@ -2,7 +2,7 @@ import { ParentProps } from "solid-js";
 
 interface props extends ParentProps {
   class?: string;
-  click?: () => void;
+  click?: (e: MouseEvent) => void;
 }
 
 const PlusIconBtn = (props: props) => {

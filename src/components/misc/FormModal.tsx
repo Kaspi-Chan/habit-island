@@ -34,7 +34,7 @@ const FormModal = (props: ModalFormProps) => {
 
   return (
     <dialog ref={dialogRef} id={props.id} class="modal">
-      <div class="modal-box bg-base-200 flex flex-col justify-center items-center max-w-sm">
+      <div class="modal-box bg-base-200 flex flex-col justify-center items-center max-w-sm overflow-visible">
         <form method="dialog">
           <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
             ✕

@@ -10,6 +10,7 @@ import {
   repeatPeriod,
   userInfo,
 } from "../store/userStore";
+import Rating from "../misc/Rating";
 
 const NewTaskModal = () => {
   const today = () => new Date().toISOString().split("T")[0];
@@ -26,13 +27,13 @@ const NewTaskModal = () => {
     try {
       await addTask(userInfo.id, {
         title: title(),
-        dueDate: new Date(date()),
+        dueDate: Timestamp.fromDate(new Date(date())),
         motivation: motivation(),
         repeat: repeat(),
         repeatPeriod: { amount: amount(), kind: kind() },
       });
     } catch (error) {
-      console.log(error);
+      return error as string;
     }
     modal.close();
   };
@@ -128,44 +129,7 @@ const NewTaskModal = () => {
         </Show>
         <div class="flex gap-4">
           <label class="label">Motivation:</label>
-          <div class="rating gap-1">
-            <input
-              type="radio"
-              name="rating"
-              class="mask mask-heart bg-primary"
-              aria-label="1 star"
-              onInput={() => setMotivation(1)}
-            />
-            <input
-              type="radio"
-              name="rating"
-              class="mask mask-heart bg-primary"
-              aria-label="2 star"
-              onInput={() => setMotivation(2)}
-            />
-            <input
-              type="radio"
-              name="rating"
-              class="mask mask-heart bg-primary"
-              aria-label="3 star"
-              onInput={() => setMotivation(3)}
-              checked
-            />
-            <input
-              type="radio"
-              name="rating"
-              class="mask mask-heart bg-primary"
-              aria-label="4 star"
-              onInput={() => setMotivation(4)}
-            />
-            <input
-              type="radio"
-              name="rating"
-              class="mask mask-heart bg-primary"
-              aria-label="5 star"
-              onInput={() => setMotivation(5)}
-            />
-          </div>
+          <Rating motivation={motivation} setMotivation={setMotivation} />
         </div>
       </div>
     </FormModal>

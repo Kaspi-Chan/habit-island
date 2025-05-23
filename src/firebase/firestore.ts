@@ -56,12 +56,42 @@ export const addTask = async (
     title: newTask.title,
     categories: [...categories],
     xp: xp,
-    dueDate: Timestamp.fromDate(newTask.dueDate as Date),
+    dueDate: newTask.dueDate,
     motivation: newTask.motivation,
     repeat: newTask.repeat,
     repeatPeriod: newTask.repeat ? newTask.repeatPeriod : null,
     overdue: false,
     createdAt: serverTimestamp(),
+  });
+};
+
+export const editTask = async (
+  userId: string,
+  reEval: boolean,
+  task: Omit<Task, "overdue">
+) => {
+  const { title, xp, categories, dueDate, motivation, repeat, repeatPeriod } =
+    task;
+  const taskCol = doc(db, "users", userId, "tasks", task.id);
+
+  let newXp = xp;
+  if (reEval) {
+    const response = await assignTaskProperties(title, motivation);
+
+    if (response) {
+      const parsed = JSON.parse(response.text!);
+      newXp = parsed.xp;
+    }
+  }
+
+  await updateDoc(taskCol, {
+    title: title,
+    categories: [...categories],
+    xp: newXp,
+    dueDate: dueDate,
+    motivation: motivation,
+    repeat: repeat,
+    repeatPeriod: repeat ? repeatPeriod : null,
   });
 };
 
