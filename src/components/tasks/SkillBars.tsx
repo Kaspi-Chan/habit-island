@@ -3,6 +3,7 @@ import ProgressBar from "./ProgressBar.jsx";
 import { setUserInfo, Skill, userInfo } from "../store/userStore.js";
 import PlusIconBtn from "../misc/PlusIconBtn.jsx";
 import { addSkill } from "../../firebase/firestore.js";
+import { showToast } from "../store/toastStore.js";
 
 const SkillBars = () => {
   let inputRef: HTMLInputElement;
@@ -23,8 +24,13 @@ const SkillBars = () => {
       level: 1,
     };
 
-    // toast
-    await addSkill(userInfo.id, newSkill);
+    try {
+      await addSkill(userInfo.id, newSkill);
+      showToast(`Skill added successfully !`);
+    } catch (error) {
+      showToast(`An error occured!`, 3000, "error");
+      console.error(error);
+    }
     reset();
   };
 

@@ -26,6 +26,7 @@ import Rating from "../misc/Rating";
 import { COLORS } from "../../config";
 import PlusIconBtn from "../misc/PlusIconBtn";
 import { Timestamp } from "firebase/firestore";
+import { showToast } from "../store/toastStore";
 
 interface props {
   task: Task;
@@ -85,7 +86,10 @@ const EditTaskModal = (props: props) => {
         repeat: newRepeat(),
         repeatPeriod: { amount: amount(), kind: kind() },
       });
+
+      showToast(`Task edited successfully!`);
     } catch (error) {
+      showToast(`An error occured!`, 3000, "error");
       return error as string;
     }
     modal.close();
@@ -93,12 +97,24 @@ const EditTaskModal = (props: props) => {
   };
 
   const handleCompleteTask = async () => {
-    await completeTaskAndAwardXp(userInfo.id, props.task);
+    try {
+      await completeTaskAndAwardXp(userInfo.id, props.task);
+      showToast(`Task completed !`);
+    } catch (error) {
+      showToast(`An error occured!`, 3000, "error");
+    }
+
     handleReset();
   };
 
   const handleRemoveTask = async () => {
-    await removeTask(userInfo.id, props.task.id);
+    try {
+      await removeTask(userInfo.id, props.task.id);
+      showToast(`Task removed !`);
+    } catch (error) {
+      showToast(`An error occured!`, 3000, "error");
+    }
+
     handleReset();
   };
 

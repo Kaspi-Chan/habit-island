@@ -3,12 +3,19 @@ import { completeTaskAndAwardXp, removeTask } from "../../firebase/firestore";
 import { setTaskToEdit, userInfo, type Task } from "../store/userStore";
 import { Timestamp } from "firebase/firestore";
 import { COLORS } from "../../config";
+import { showToast } from "../store/toastStore";
 
 const Task = (props: Task) => {
   const handleTaskComplete = async (e: MouseEvent) => {
     e.stopPropagation();
-    // toast
-    await completeTaskAndAwardXp(userInfo.id, props);
+
+    try {
+      await completeTaskAndAwardXp(userInfo.id, props);
+      showToast(`Task completed !`);
+    } catch (error) {
+      showToast(`An error occured!`, 3000, "error");
+      console.error(error);
+    }
   };
 
   const handleTaskEdit = () => {

@@ -1,6 +1,8 @@
+import { Portal } from "solid-js/web";
 import NewTaskModal from "./tasks/NewTaskModal.jsx";
 import SkillBars from "./tasks/SkillBars.jsx";
 import TasksList from "./tasks/TasksList.jsx";
+import Toast from "./misc/Toast.jsx";
 
 const MainView = () => {
   return (
@@ -8,6 +10,9 @@ const MainView = () => {
       <SkillBars />
       <TasksList />
       <NewTaskModal />
+      <Portal>
+        <Toast />
+      </Portal>
     </div>
   );
 };

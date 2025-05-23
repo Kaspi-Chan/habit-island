@@ -11,6 +11,7 @@ import {
   userInfo,
 } from "../store/userStore";
 import Rating from "../misc/Rating";
+import { showToast } from "../store/toastStore";
 
 const NewTaskModal = () => {
   const today = () => new Date().toISOString().split("T")[0];
@@ -32,9 +33,13 @@ const NewTaskModal = () => {
         repeat: repeat(),
         repeatPeriod: { amount: amount(), kind: kind() },
       });
+
+      showToast(`Task added successfully!`);
     } catch (error) {
+      showToast(`An error occured!`, 3000, "error");
       return error as string;
     }
+
     modal.close();
   };
 
