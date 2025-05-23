@@ -4,18 +4,22 @@ import { createSignal, onMount, ParentProps } from "solid-js";
 type ModalFormProps = {
   id: string;
   title: string;
-  onSubmit: () => Promise<string | undefined>; // should return an error message or null if no error
+  onSubmit: (dialogRef: HTMLDialogElement) => Promise<string | undefined>; // should return an error message or null if no error
   buttonText?: string;
+  onReset?: () => void;
 } & ParentProps;
 
-const AuthModal = (props: ModalFormProps) => {
+const FormModal = (props: ModalFormProps) => {
   let dialogRef!: HTMLDialogElement;
   const [error, setError] = createSignal<string | null>(null);
 
   const resetForm = () => {
     setError(null);
     const form = dialogRef.querySelector("form[method='post']");
-    if (form instanceof HTMLFormElement) form.reset();
+    if (form instanceof HTMLFormElement) {
+      form.reset();
+      props.onReset?.();
+    }
   };
 
   onMount(() => {
@@ -24,24 +28,22 @@ const AuthModal = (props: ModalFormProps) => {
 
   const handleSubmit = async (e: Event) => {
     e.preventDefault();
-    const err = await props.onSubmit();
-    if (err) {
-      setError(err);
-    }
+    const err = await props.onSubmit(dialogRef);
+    if (err) setError(err);
   };
 
   return (
     <dialog ref={dialogRef} id={props.id} class="modal">
-      <div class="modal-box">
+      <div class="modal-box bg-base-200 flex flex-col justify-center items-center max-w-sm overflow-visible">
         <form method="dialog">
           <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
             ✕
           </button>
         </form>
-        <h2 class="text-2xl font-bold text-center">{props.title}</h2>
+        <h2 class="text-2xl font-bold text-center mb-6">{props.title}</h2>
         <form
           method="post"
-          class="flex flex-col gap-6 px-4 py-6"
+          class="flex flex-col gap-6  w-full"
           onSubmit={handleSubmit}>
           {props.children}
           <div
@@ -61,7 +63,7 @@ const AuthModal = (props: ModalFormProps) => {
             </svg>
             <span>{error()}</span>
           </div>
-          <button class="btn btn-primary" type="submit">
+          <button class="btn btn-neutral" type="submit">
             {props.buttonText || "Submit"}
           </button>
         </form>
@@ -70,4 +72,4 @@ const AuthModal = (props: ModalFormProps) => {
   );
 };
 
-export default AuthModal;
+export default FormModal;

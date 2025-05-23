@@ -18,8 +18,10 @@
     "vite-plugin-solid": "^2.11.6"
   },
   "dependencies": {
+    "@google/genai": "^1.0.0",
     "@solidjs/router": "^0.15.3",
     "@tailwindcss/vite": "^4.0.15",
+    "cally": "^0.8.0",
     "daisyui": "^5.0.9",
     "firebase": "^11.5.0",
     "pixi-viewport": "^6.0.3",

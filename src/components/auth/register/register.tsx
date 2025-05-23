@@ -1,6 +1,6 @@
 import { createSignal } from "solid-js";
 import { registerWithEmail } from "../../../firebase/auth.js";
-import AuthModal from "../../misc/AuthModal.jsx";
+import FormModal from "../../misc/FormModal.jsx";
 
 const Register = () => {
   const [username, setUsername] = createSignal("");
@@ -22,13 +22,14 @@ const Register = () => {
   };
 
   return (
-    <AuthModal
+    <FormModal
       id="register-modal"
       title="Register"
       onSubmit={handleRegister}
       buttonText="Register">
       <div class="space-y-3 flex flex-col ">
         <div class="flex flex-col justify0-center items-center">
+          <label class="label w-full">Username</label>
           <input
             type="text"
             placeholder="Username"
@@ -37,13 +38,14 @@ const Register = () => {
             onInput={(e) => setUsername(e.currentTarget.value)}
             minlength="3"
             maxlength="30"
-            class="input input-neutral validator"
+            class="input input-neutral validator w-full"
           />
           <p class="validator-hint hidden w-full">Must be 3 to 30 characters</p>
         </div>
         <div class="flex flex-col justify0-center items-center">
+          <label class="label w-full">Email</label>
           <input
-            class="input input-neutral validator"
+            class="input input-neutral validator w-full"
             type="email"
             value={email()}
             onInput={(e) => setEmail(e.currentTarget.value)}
@@ -53,9 +55,10 @@ const Register = () => {
           <p class="validator-hint hidden w-full">Enter valid email address</p>
         </div>
         <div class="flex flex-col justify0-center items-center">
+          <label class="label w-full">Password</label>
           <input
             type="password"
-            class="input input-neutral validator"
+            class="input input-neutral validator w-full"
             value={password()}
             onInput={(e) => setPassword(e.currentTarget.value)}
             required
@@ -74,9 +77,10 @@ const Register = () => {
           </p>
         </div>
         <div class="flex flex-col justify0-center items-center">
+          <label class="label w-full">Confirm password</label>
           <input
             type="password"
-            class="input input-neutral validator"
+            class="input input-neutral validator w-full"
             onInput={(e) => validatePassword(e.currentTarget)}
             required
             placeholder="Confirm password"
@@ -84,7 +88,7 @@ const Register = () => {
           <p class="validator-hint hidden w-full">*Passwords do not match</p>
         </div>
       </div>
-    </AuthModal>
+    </FormModal>
   );
 };
 

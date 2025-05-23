@@ -1,6 +1,6 @@
 // auth.ts
 import { FirebaseError } from "firebase/app";
-import { auth } from "./firebase.js";
+import { auth, db } from "./firebase.js";
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
@@ -11,6 +11,15 @@ import {
   updateProfile,
 } from "firebase/auth";
 import { getAuthErrorMessage } from "./ErrorHandler/index.js";
+import {
+  collection,
+  doc,
+  getDoc,
+  serverTimestamp,
+  setDoc,
+  writeBatch,
+} from "firebase/firestore";
+import { initUserDocument } from "./firestore.js";
 
 export const registerWithEmail = async (
   email: string,
@@ -24,7 +33,9 @@ export const registerWithEmail = async (
       password
     );
     const user = userCredential.user;
+    const userRef = doc(db, "users", user.uid);
     await updateProfile(user, { displayName: username });
+    await initUserDocument(user, userRef);
   } catch (error) {
     if (error instanceof FirebaseError) {
       return getAuthErrorMessage(error.code);
@@ -44,7 +55,17 @@ export const loginWithEmail = async (email: string, password: string) => {
 
 export const loginWithGoogle = async (): Promise<UserCredential> => {
   const provider = new GoogleAuthProvider();
-  return signInWithPopup(auth, provider);
+  const userCredential = await signInWithPopup(auth, provider);
+
+  const user = userCredential.user;
+  const userRef = doc(db, "users", user.uid);
+  const userSnap = await getDoc(userRef);
+
+  if (!userSnap.exists()) {
+    await initUserDocument(user, userRef);
+  }
+
+  return userCredential;
 };
 
 export const logout = async (): Promise<void> => {

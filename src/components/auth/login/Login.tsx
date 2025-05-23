@@ -1,6 +1,6 @@
 import { createSignal, onMount } from "solid-js";
 import { loginWithEmail } from "../../../firebase/auth.js";
-import AuthModal from "../../misc/AuthModal.jsx";
+import FormModal from "../../misc/FormModal.jsx";
 
 const Login = () => {
   const [email, setEmail] = createSignal("");
@@ -13,15 +13,16 @@ const Login = () => {
   };
 
   return (
-    <AuthModal
+    <FormModal
       id="login-modal"
       title="Login"
       onSubmit={handleLogin}
       buttonText="Login">
       <div class="space-y-3 flex flex-col ">
         <div class="flex flex-col justify-center items-center">
+          <label class="label w-full">Email</label>
           <input
-            class="input input-neutral validator"
+            class="input input-neutral validator w-full"
             type="email"
             value={email()}
             onInput={(e) => setEmail(e.currentTarget.value)}
@@ -30,10 +31,11 @@ const Login = () => {
           />
           <p class="validator-hint hidden w-full">Enter valid email address</p>
         </div>
-        <div class="flex flex-col justify0-center items-center">
+        <div class="flex flex-col justify-center items-center">
+          <label class="label w-full">Password</label>
           <input
             type="password"
-            class="input input-neutral validator"
+            class="input input-neutral validator w-full"
             value={password()}
             onInput={(e) => setPassword(e.currentTarget.value)}
             required
@@ -52,7 +54,7 @@ const Login = () => {
           </p>
         </div>
       </div>
-    </AuthModal>
+    </FormModal>
   );
 };
 

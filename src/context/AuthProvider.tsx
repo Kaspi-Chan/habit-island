@@ -8,7 +8,8 @@ import {
   Setter,
 } from "solid-js";
 import { onAuthStateChanged, User } from "firebase/auth";
-import { auth } from "../firebase/firebase.js";
+import { auth, db } from "../firebase/firebase.js";
+import { subscribeToUserData } from "../firebase/firestore.js";
 
 interface AuthContextType {
   user: () => User | null;
@@ -27,6 +28,9 @@ export const AuthProvider: ParentComponent = (props) => {
   // Subscribe to auth state changes
   const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
     setUser(currentUser);
+
+    if (!currentUser) return;
+    subscribeToUserData(currentUser);
   });
 
   // Clean up subscription on unmount
