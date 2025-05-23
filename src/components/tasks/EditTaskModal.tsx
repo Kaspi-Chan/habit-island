@@ -13,20 +13,14 @@ import {
   editTask,
   removeTask,
 } from "../../firebase/firestore";
-import {
-  motivation,
-  periodAmount,
-  periodKind,
-  setTaskToEdit,
-  Task,
-  userInfo,
-} from "../store/userStore";
+import { setTaskToEdit, userInfo } from "../store/userStore";
 import { formatDateForInput } from "../../utils/utils";
 import Rating from "../misc/Rating";
 import { COLORS } from "../../config";
 import PlusIconBtn from "../misc/PlusIconBtn";
 import { Timestamp } from "firebase/firestore";
 import { showToast } from "../store/toastStore";
+import { motivation, periodAmount, periodKind, Task } from "../../types";
 
 interface props {
   task: Task;

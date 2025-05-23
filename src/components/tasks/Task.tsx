@@ -1,9 +1,10 @@
 import { For } from "solid-js";
 import { completeTaskAndAwardXp, removeTask } from "../../firebase/firestore";
-import { setTaskToEdit, userInfo, type Task } from "../store/userStore";
+import { setTaskToEdit, userInfo } from "../store/userStore";
 import { Timestamp } from "firebase/firestore";
 import { COLORS } from "../../config";
 import { showToast } from "../store/toastStore";
+import type { Task } from "../../types";
 
 const Task = (props: Task) => {
   const handleTaskComplete = async (e: MouseEvent) => {

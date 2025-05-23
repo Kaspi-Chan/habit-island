@@ -3,15 +3,10 @@ import FormModal from "../misc/FormModal";
 import { addDoc, collection, Timestamp } from "firebase/firestore";
 import { db } from "../../firebase/firebase";
 import { addTask } from "../../firebase/firestore";
-import {
-  motivation,
-  periodAmount,
-  periodKind,
-  repeatPeriod,
-  userInfo,
-} from "../store/userStore";
+import { userInfo } from "../store/userStore";
 import Rating from "../misc/Rating";
 import { showToast } from "../store/toastStore";
+import { motivation, periodAmount, periodKind } from "../../types";
 
 const NewTaskModal = () => {
   const today = () => new Date().toISOString().split("T")[0];

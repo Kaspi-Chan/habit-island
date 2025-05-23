@@ -1,9 +1,10 @@
 import { createSignal, For, Show } from "solid-js";
 import ProgressBar from "./ProgressBar.jsx";
-import { setUserInfo, Skill, userInfo } from "../store/userStore.js";
+import { setUserInfo, userInfo } from "../store/userStore.js";
 import PlusIconBtn from "../misc/PlusIconBtn.jsx";
 import { addSkill } from "../../firebase/firestore.js";
 import { showToast } from "../store/toastStore.js";
+import { Skill } from "../../types/index.js";
 
 const SkillBars = () => {
   let inputRef: HTMLInputElement;

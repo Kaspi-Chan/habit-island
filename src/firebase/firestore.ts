@@ -20,17 +20,13 @@ import {
   runTransaction,
 } from "firebase/firestore";
 import { db } from "./firebase";
-import {
-  setUserInfo,
-  Skill,
-  Task,
-  userInfo,
-} from "../components/store/userStore";
+import { setUserInfo, userInfo } from "../components/store/userStore";
 import { User } from "firebase/auth";
 import { DEFAULT_SKILLS, XP_PER_LEVEL } from "../config";
 import { produce } from "solid-js/store";
 import { assignTaskProperties } from "../gemini";
 import { getDay } from "../utils/utils";
+import { Skill, Task } from "../types";
 
 export const addTask = async (
   userId: string,
