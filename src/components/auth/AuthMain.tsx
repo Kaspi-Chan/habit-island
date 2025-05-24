@@ -1,7 +1,7 @@
 import { createEffect } from "solid-js";
 import { loginWithGoogle } from "../../firebase/auth.js";
 import Login from "./login/Login.jsx";
-import Register from "./register/Register.jsx";
+import Register from "./register/register.jsx";
 import { useAuth } from "../../context/AuthProvider.jsx";
 import { useNavigate } from "@solidjs/router";
 

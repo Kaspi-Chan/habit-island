@@ -1,3 +1,19 @@
+import bunnyPreview from "./assets/bunny-preview.png";
+import capybaraPreview from "./assets/capybara-preview.png";
+import catPreview from "./assets/cat-preview.png";
+import foxPreview from "./assets/fox-preview.png";
+import parrotPreview from "./assets/parrot-preview.png";
+import turtlePreview from "./assets/turtle-preview.png";
+
+export const ANIAMLS = [
+  { animal: "Bunny", requiredLvl: 0, image: bunnyPreview },
+  { animal: "Fox", requiredLvl: 0, image: foxPreview },
+  { animal: "Parrot", requiredLvl: 5, image: parrotPreview },
+  { animal: "Cat", requiredLvl: 10, image: catPreview },
+  { animal: "Turtle", requiredLvl: 36, image: turtlePreview },
+  { animal: "Capybara", requiredLvl: 40, image: capybaraPreview },
+];
+
 export const DEFAULT_SKILLS = [
   "Physical Health & Fitness",
   "Emotional Well-Being",
