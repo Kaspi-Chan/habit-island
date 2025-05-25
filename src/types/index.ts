@@ -31,7 +31,7 @@ export interface Skill {
   currentXP: number;
 }
 
-export interface UserAnimals {
+export interface UserAnimal {
   name: string;
   type: string;
 }

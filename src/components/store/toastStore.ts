@@ -8,7 +8,7 @@ interface ToastState {
   type: ToastType;
 }
 
-type ToastType = "success" | "error";
+type ToastType = "success" | "error" | "info" | "warning";
 
 const [toast, setToast] = createSignal<ToastState>({
   show: false,

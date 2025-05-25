@@ -4,6 +4,7 @@ import { createSignal, onMount, ParentProps } from "solid-js";
 type ModalFormProps = {
   id: string;
   title: string;
+  class?: string;
   onSubmit: (dialogRef: HTMLDialogElement) => Promise<string | undefined>; // should return an error message or null if no error
   buttonText?: string;
   onReset?: () => void;
@@ -34,9 +35,10 @@ const FormModal = (props: ModalFormProps) => {
 
   return (
     <dialog ref={dialogRef} id={props.id} class="modal">
-      <div class="modal-box bg-base-200 flex flex-col justify-center items-center max-w-sm overflow-visible">
+      <div
+        class={`modal-box bg-base-200 flex flex-col justify-center items-center max-w-sm overflow-visible ${props.class}`}>
         <form method="dialog">
-          <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
+          <button class="btn text-lg btn-sm btn-circle btn-ghost absolute right-2 top-2">
             ✕
           </button>
         </form>

@@ -5,7 +5,15 @@ const Toast = () => {
   const toast = useToast();
 
   const type = () =>
-    toast().type === "success" ? "alert-success" : "alert-error";
+    toast().type === "success"
+      ? "alert-success"
+      : toast().type === "error"
+      ? "alert-error"
+      : toast().type === "info"
+      ? "alert-info"
+      : toast().type === "warning"
+      ? "alert-warning"
+      : "";
 
   return (
     <Show when={toast().show}>

@@ -26,7 +26,7 @@ import { DEFAULT_SKILLS, XP_PER_LEVEL } from "../config";
 import { produce } from "solid-js/store";
 import { assignTaskProperties } from "../gemini";
 import { getDay } from "../utils/utils";
-import { Skill, Task } from "../types";
+import { Skill, Task, UserAnimal } from "../types";
 
 export const addTask = async (
   userId: string,
@@ -100,6 +100,13 @@ export const addSkill = async (userId: string, skill: Skill) => {
   const skillsCol = collection(db, "users", userId, "skills");
   await addDoc(skillsCol, {
     ...skill,
+  });
+};
+
+export const addAnimal = async (userId: string, animal: UserAnimal) => {
+  const animalCol = collection(db, "users", userId, "animals");
+  await addDoc(animalCol, {
+    ...animal,
   });
 };
 
@@ -177,6 +184,8 @@ export const initUserDocument = async (
     });
   });
 
+  // create animals collection
+
   await batch.commit();
 };
 
@@ -218,6 +227,13 @@ export const subscribeToUserData = (user: User) => {
   onSnapshot(skillsCol, (snapshot) => {
     const list = snapshot.docs.map((d) => ({ ...d.data() } as Skill));
     setUserInfo("skills", list);
+  });
+
+  // subscribe to animal collection
+  const animalsCol = collection(db, "users", user.uid, "animals");
+  onSnapshot(animalsCol, (snapshot) => {
+    const list = snapshot.docs.map((d) => ({ ...d.data() } as UserAnimal));
+    setUserInfo("animals", list);
   });
 };
 
