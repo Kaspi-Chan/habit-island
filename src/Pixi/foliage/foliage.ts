@@ -20,7 +20,7 @@ const foliage: StaticObjects[] = [
   // 2nd row
   { x: 2, y: 5.5, scale: 1.6, alias: "bush" },
   { x: 6, y: 5.5, scale: 1.6, alias: "bush" },
-  { x: 11.5, y: 6.5, scale: 1.6, alias: "bush" },
+  { x: 11, y: 6.25, scale: 1.6, alias: "bush" },
   { x: 12, y: 7, scale: 1.6, alias: "bush" },
   // big bushes
   { x: 6.1, y: 0.65, alias: "bush" },
