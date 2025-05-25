@@ -38,11 +38,13 @@ const AuthMain = () => {
   return (
     <main
       class="min-h-screen flex flex-col justify-center items-center 
-            bg-gradient-to-br from-blue-100 to-teal-100 px-4">
+            bg-gradient-to-br from-blue-100 to-teal-100 p-4">
       <div
         class="max-w-xl w-full bg-base-100 text-base-content text-center rounded-2xl 
-        shadow-lg p-10 space-y-6">
-        <h1 class="text-4xl font-bold text-primary">Welcome to Habit Island</h1>
+        shadow-lg p-10 space-y-4 md:space-y-6 text-sm md:text-md">
+        <h1 class="text-xl md:text-4xl font-bold text-primary">
+          Welcome to Habit Island
+        </h1>
         <div class="space-y-3">
           <p>
             Habit Island is a habit tracking app that helps you build and

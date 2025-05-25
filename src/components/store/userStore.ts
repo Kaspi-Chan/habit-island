@@ -26,3 +26,4 @@ export const [userInfo, setUserInfo] = createStore<UserInfo>({
 });
 
 export const [taskToEdit, setTaskToEdit] = createSignal<Task | null>(null);
+export const [showStatus, setShowStatus] = createSignal<boolean>(false);

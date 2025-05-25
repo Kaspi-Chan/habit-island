@@ -19,10 +19,10 @@ const AnimalCard = (props: AnimalCardProps) => {
   return (
     <div
       onClick={handleClick}
-      class={`flex flex-col items-center rounded-lg shadow p-4 w-40 cursor-pointer relative border-2 border-neutral border-solid ${
+      class={`flex flex-col items-center rounded-lg shadow p-4 cursor-pointer relative border-2 border-neutral border-solid ${
         props.selected() === props.name ? "border-primary/100" : ""
       }`}>
-      <div class="w-32 h-32 flex items-center justify-center rounded ">
+      <div class="w-[90%] h-[90%] aspect-square flex items-center justify-center rounded ">
         <img
           src={props.image}
           alt="Bunny"
@@ -49,7 +49,9 @@ const AnimalCard = (props: AnimalCardProps) => {
           </span>
         </div>
       </Show>
-      <span class="mt-2 text-center font-medium">{props.name}</span>
+      <span class="mt-2 text-center font-medium text-xs lg:text-md">
+        {props.name}
+      </span>
     </div>
   );
 };

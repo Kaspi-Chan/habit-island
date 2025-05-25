@@ -4,7 +4,7 @@ import TasksList from "./tasks/TasksList.jsx";
 import Toast from "./misc/Toast.jsx";
 import AnimalCatalogue from "./AnimalCatalogue/AnimalCatalogue.jsx";
 import { createEffect, createMemo, onMount } from "solid-js";
-import { userInfo } from "./store/userStore.js";
+import { setShowStatus, userInfo } from "./store/userStore.js";
 
 const MainView = () => {
   let modalEl: HTMLDialogElement;
@@ -24,13 +24,16 @@ const MainView = () => {
 
     if (have < need && modalEl && !modalEl.open) {
       modalEl.showModal();
+      setShowStatus(true);
+    } else {
+      setShowStatus(false);
     }
   });
 
   return (
     <div
-      class="absolute lg:static lg:max-w-[400px] 2xl:max-w-lg lg:py-16 mt-6 top-6/12 h-6/12 left-[2.5%] 
-      w-[95%] min-h-[100vh] flex flex-col">
+      class="lg:max-w-[400px] 2xl:max-w-lg lg:py-16 mt-6 mx-auto 
+      w-[95%] lg:min-h-[100vh] flex flex-col">
       <SkillBars />
       <TasksList />
       <Portal>

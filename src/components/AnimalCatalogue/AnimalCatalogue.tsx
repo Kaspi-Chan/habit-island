@@ -2,9 +2,10 @@ import { createSignal, onMount } from "solid-js";
 import FormModal from "../misc/FormModal";
 import AnimalCard from "./AnimalCard";
 import { ANIAMLS } from "../../config";
-import { userInfo } from "../store/userStore";
+import { showStatus, userInfo } from "../store/userStore";
 import { addAnimal } from "../../firebase/firestore";
 import { showToast } from "../store/toastStore";
+import { RendererType } from "pixi.js";
 
 const AnimalCatalogue = () => {
   const [selected, setSelected] = createSignal(ANIAMLS[0].animal);
@@ -21,6 +22,17 @@ const AnimalCatalogue = () => {
   };
 
   const handleAddAnimal = async (modal: HTMLDialogElement) => {
+    if (!showStatus()) {
+      showToast(`Increase your level to add more animals!`, 3000, "info");
+      modal.close();
+      return;
+    }
+
+    if (userInfo.animals?.some((animal) => animal.name === name())) {
+      showToast(`Animal with name ${name()} already exists!`, 3000, "warning");
+      return;
+    }
+
     try {
       await addAnimal(userInfo.id, {
         name: name(),

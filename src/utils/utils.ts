@@ -41,3 +41,11 @@ export const formatDateForInput = (d: Date): string => {
   const day = String(d.getDate()).padStart(2, "0");
   return `${y}-${m}-${day}`;
 };
+
+export const openAnimalCatalogue = () => {
+  const modal = document.getElementById(
+    "animal-catalogue-modal"
+  ) as HTMLDialogElement;
+
+  if (modal) [modal.show()];
+};
