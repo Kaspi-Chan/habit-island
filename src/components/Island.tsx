@@ -4,6 +4,7 @@ import {
   createSignal,
   createMemo,
   createEffect,
+  on,
 } from "solid-js";
 import { initDevtools } from "@pixi/devtools";
 import { populateWithTrees } from "../Pixi/foliage/trees.js";
@@ -18,9 +19,12 @@ import { Cat } from "../Pixi/animals/Cat/Cat.js";
 import { Turtle } from "../Pixi/animals/Turtle/Turtle.js";
 import { addWaterTiles } from "../Pixi/foliage/water.js";
 import { userInfo } from "./store/userStore.js";
+import { Container } from "pixi.js";
 
 function Island() {
   let container; // Reference to the container div
+  const renderedAnimals = new Set<string>();
+  const animalContainer = new Container();
 
   onMount(() => {
     (async () => {
@@ -33,43 +37,7 @@ function Island() {
         viewport.addChild(debugHitArea(obsticle, 0x00ff00, 0.3)!)
       );
 
-      // doesnt work
-      const renderedAnimals = [];
-      createMemo(() => {
-        userInfo.animals?.forEach((animal) => {
-          if (renderedAnimals.length > 0) {
-            if (renderedAnimals.includes(animal.name)) return;
-            console.log("asdasdas");
-          }
-
-          let animInstance;
-          switch (animal.type) {
-            case "Bunny":
-              animInstance = new Bunny();
-              break;
-            case "Capybara":
-              animInstance = new Capybara();
-              break;
-            case "Fox":
-              animInstance = new Fox();
-              break;
-            case "Cat":
-              animInstance = new Cat();
-              break;
-            case "Turtle":
-              animInstance = new Turtle();
-              break;
-            case "Parrot":
-              animInstance = new Parrot();
-              break;
-          }
-
-          if (animInstance && viewport) {
-            renderedAnimals.push(animal.type);
-            viewport.addChild(animInstance!);
-          }
-        });
-      });
+      viewport.addChild(animalContainer);
 
       // const cappy2 = new Capybara();
       // const cappy3 = new Capybara();
@@ -115,6 +83,54 @@ function Island() {
       container!.appendChild(app.canvas);
     })();
   });
+
+  createEffect(() => {
+    userInfo.animals?.forEach((animal) => {
+      if (renderedAnimals.has(animal.name)) return;
+
+      let animInstance;
+      switch (animal.type) {
+        case "Bunny":
+          animInstance = new Bunny();
+          break;
+        case "Capybara":
+          animInstance = new Capybara();
+          break;
+        case "Fox":
+          animInstance = new Fox();
+          break;
+        case "Cat":
+          animInstance = new Cat();
+          break;
+        case "Turtle":
+          animInstance = new Turtle();
+          break;
+        case "Parrot":
+          animInstance = new Parrot();
+          break;
+      }
+
+      if (animInstance && viewport) {
+        renderedAnimals.add(animal.name);
+        animalContainer.addChild(animInstance);
+      }
+    });
+  });
+
+  // Reset animals on new login
+  createEffect(
+    on(
+      () => userInfo.id,
+      (newId, prevId) => {
+        if (newId && newId !== prevId) {
+          renderedAnimals.clear();
+          if (animalContainer) {
+            animalContainer.removeChildren();
+          }
+        }
+      }
+    )
+  );
 
   return (
     <div class="flex justify-center items-center w-full h-6/12 lg:h-full flex-1 ">

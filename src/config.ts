@@ -9,9 +9,9 @@ export const ANIAMLS = [
   { animal: "Bunny", requiredLvl: 0, image: bunnyPreview },
   { animal: "Fox", requiredLvl: 0, image: foxPreview },
   { animal: "Parrot", requiredLvl: 5, image: parrotPreview },
-  { animal: "Cat", requiredLvl: 10, image: catPreview },
-  { animal: "Turtle", requiredLvl: 36, image: turtlePreview },
-  { animal: "Capybara", requiredLvl: 40, image: capybaraPreview },
+  { animal: "Cat", requiredLvl: 15, image: catPreview },
+  { animal: "Turtle", requiredLvl: 25, image: turtlePreview },
+  { animal: "Capybara", requiredLvl: 35, image: capybaraPreview },
 ];
 
 export const DEFAULT_SKILLS = [
