@@ -204,7 +204,6 @@ export abstract class Animal<
     this.speed = speed;
     this.scale.x = this.x >= this.target!.x ? -1 : 1; // face direction
 
-    // debug
     // this.drawDebugPath();
   }
 
@@ -242,16 +241,20 @@ export abstract class Animal<
 
       if (xIsInRange) {
         const by = this.x > this.target.x ? -50 : 50;
-        if (!this.isOffsetReachable("x", by)) {
-          console.log("not reachable papi: ", this, this.target);
-          this.onTargetReached();
+
+        if (!this.canOffset("x", by)) {
+          return this.onTargetReached();
         }
+
+        this.doOffset("x", by);
       } else if (yIsInRange) {
         const by = this.y > this.target.y ? -50 : 50;
-        if (!this.isOffsetReachable("y", by)) {
-          console.log("not reachable papi: ", this, this.target);
-          this.onTargetReached();
+
+        if (!this.canOffset("x", by)) {
+          return this.onTargetReached();
         }
+
+        this.doOffset("y", by);
       }
 
       // see by which axis we collide first
@@ -283,22 +286,23 @@ export abstract class Animal<
         moveX = Math.sign(moveX) * boosted;
       }
 
-      this.x += moveX;
-      this.y += moveY;
+      this.x = clamp(this.x, 0, WORLD_WIDTH);
+      this.y = clamp(this.y, 0, WORLD_HEIGHT);
     }
   }
 
-  private isOffsetReachable(coord: "x" | "y", by: number): boolean {
-    const bound = coord === "x" ? WORLD_WIDTH : WORLD_HEIGHT;
+  private canOffset(coord: "x" | "y", by: number): boolean {
     const old = this.target![coord];
-    const next = clamp(old + by, 0, bound);
+    const next = clamp(old + by, 0, coord === "x" ? WORLD_WIDTH : WORLD_HEIGHT);
+    return next !== old;
+  }
 
-    if (next === old) {
-      return false;
-    }
-
-    this.target![coord] = next;
-    return true;
+  private doOffset(coord: "x" | "y", by: number): void {
+    this.target![coord] = clamp(
+      this.target![coord] + by,
+      0,
+      coord === "x" ? WORLD_WIDTH : WORLD_HEIGHT
+    );
   }
 
   // prettier-ignore
@@ -315,7 +319,7 @@ export abstract class Animal<
 
   private computeMoveDeltas() {
     // prettier-ignore
-    const secondsElapsed = (Ticker.shared.elapsedMS / 1000) * Ticker.shared.speed;
+    const secondsElapsed = (Ticker.shared.deltaMS / 1000) * Ticker.shared.speed;
     const step = this.speed * secondsElapsed;
     const deltaX = this.target!.x - this.x;
     const deltaY = this.target!.y - this.y;
@@ -324,6 +328,8 @@ export abstract class Animal<
     // save current position
     const currX = this.x;
     const currY = this.y;
+
+    if (dist === 0) console.log("niga gay");
 
     // get next position
     let moveX = (deltaX / dist) * step;
@@ -336,18 +342,6 @@ export abstract class Animal<
       currX,
       currY,
     };
-  }
-
-  private animalIntersects(obstacle: Animal): boolean {
-    const a = getAbsoluteCords(this.hitbox, this);
-    const b = getAbsoluteCords(obstacle.hitbox, obstacle);
-
-    return !(
-      a.x + a.width <= b.x ||
-      a.x >= b.x + b.width ||
-      a.y + a.height <= b.y ||
-      a.y >= b.y + b.height
-    );
   }
 
   protected onTargetReached() {
@@ -372,7 +366,8 @@ export abstract class Animal<
     this.hitbox = new Rectangle(x, y, width, height);
     dynamicObstacles.push(this);
 
-    this.addChild(debugHitArea(this.hitbox, 0x00ff00, 0.3)!);
+    // debug
+    // this.addChild(debugHitArea(this.hitbox, 0x00ff00, 0.3)!);
   }
 
   private drawDebugPath() {
