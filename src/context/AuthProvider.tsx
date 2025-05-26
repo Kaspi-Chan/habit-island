@@ -13,6 +13,7 @@ import { subscribeToUserData } from "../firebase/firestore.js";
 
 interface AuthContextType {
   user: () => User | null;
+  loading: () => boolean;
   setUser: Setter<User | null>;
 }
 
@@ -24,20 +25,22 @@ export const useAuth = () => {
 
 export const AuthProvider: ParentComponent = (props) => {
   const [user, setUser] = createSignal<User | null>(null);
+  const [loading, setLoading] = createSignal(true);
 
   // Subscribe to auth state changes
   const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
     setUser(currentUser);
-
     if (!currentUser) return;
+
     subscribeToUserData(currentUser);
+    setLoading(false);
   });
 
   // Clean up subscription on unmount
   onCleanup(() => unsubscribe());
 
   return (
-    <AuthContext.Provider value={{ user, setUser }}>
+    <AuthContext.Provider value={{ user, setUser, loading }}>
       {props.children}
     </AuthContext.Provider>
   );
