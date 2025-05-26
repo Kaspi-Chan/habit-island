@@ -1,9 +1,9 @@
 import { GoogleGenAI, Type } from "@google/genai";
-import { userInfo } from "../components/store/userStore";
-import { motivation } from "../types";
+import { userInfo } from "../../src/components/store/userStore";
+import { motivation } from "../../src/types";
 
 const ai = new GoogleGenAI({
-  apiKey: "",
+  apiKey: process.env.GOOGLE_GENAI_API_KEY,
 });
 
 export async function assignTaskProperties(
