@@ -51,9 +51,7 @@ export const init = async (container: HTMLElement) => {
 
 const preload = async () => {
   const assets = [
-    { alias: "backgroundNoTrees2", src: "tiles/bg-no-trees2.png" },
     { alias: "background", src: "tiles/bg-1.png" },
-    { alias: "tree", src: "trees/Autumn.png" },
     { alias: "treeGreen", src: "trees/AnimatedTreeCoolColor.png" },
     { alias: "rock", src: "others/rock.png" },
     { alias: "big-log", src: "others/big-log.png" },

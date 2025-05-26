@@ -1,14 +1,7 @@
-import {
-  onMount,
-  onCleanup,
-  createSignal,
-  createMemo,
-  createEffect,
-  on,
-} from "solid-js";
+import { onMount, createEffect, on } from "solid-js";
 import { initDevtools } from "@pixi/devtools";
 import { populateWithTrees } from "../Pixi/foliage/trees.js";
-import { init, staticObstacles, viewport } from "../Pixi/setup.js";
+import { init, viewport } from "../Pixi/setup.js";
 import { debugHitArea } from "../utils/pixi/index.js";
 import { populateWithFoliage } from "../Pixi/foliage/foliage.js";
 import { Capybara } from "../Pixi/animals/Capybara/Capybara.js";
@@ -36,7 +29,6 @@ function Island() {
       document.addEventListener("visibilitychange", () => {
         if (document.hidden) {
           Ticker.shared.stop();
-          console.log("oooooo");
         } else {
           Ticker.shared.start();
         }
