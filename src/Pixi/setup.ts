@@ -38,10 +38,10 @@ export const init = async (container: HTMLElement) => {
   viewport = setupViewport(app, container);
 
   // debug grid
-  const debugGrid = drawGrid();
-  const debugGridSmall = drawGrid(16);
-  debugGrid.stroke({ width: 1, color: 0xcccccc });
-  debugGridSmall.stroke({ width: 1, color: 0xff0000 });
+  // const debugGrid = drawGrid();
+  // const debugGridSmall = drawGrid(16);
+  // debugGrid.stroke({ width: 1, color: 0xcccccc });
+  // debugGridSmall.stroke({ width: 1, color: 0xff0000 });
   // app.stage.addChild(debugGridSmall);
   setupBounds();
   // app.stage.addChild(debugGrid);

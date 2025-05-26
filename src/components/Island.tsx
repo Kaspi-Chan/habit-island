@@ -1,4 +1,4 @@
-import { onMount, createEffect, on } from "solid-js";
+import { onMount, createEffect, on, createSignal } from "solid-js";
 import { initDevtools } from "@pixi/devtools";
 import { populateWithTrees } from "../Pixi/foliage/trees.js";
 import { init, viewport } from "../Pixi/setup.js";
@@ -16,6 +16,7 @@ import { Container, Ticker } from "pixi.js";
 
 function Island() {
   let container; // Reference to the container div
+  const [pixiLoaded, setPixiLoaded] = createSignal(false);
   const renderedAnimals = new Set<string>();
   const animalContainer = new Container();
 
@@ -42,10 +43,13 @@ function Island() {
 
       initDevtools({ app });
       container!.appendChild(app.canvas);
+      setPixiLoaded(true);
     })();
   });
 
   createEffect(() => {
+    if (!pixiLoaded()) return;
+
     userInfo.animals?.forEach((animal) => {
       if (renderedAnimals.has(animal.name)) return;
 
@@ -83,6 +87,8 @@ function Island() {
     on(
       () => userInfo.id,
       (newId, prevId) => {
+        if (!pixiLoaded()) return;
+
         if (newId && newId !== prevId) {
           renderedAnimals.clear();
           if (animalContainer) {

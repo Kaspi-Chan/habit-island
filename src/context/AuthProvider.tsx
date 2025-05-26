@@ -30,10 +30,11 @@ export const AuthProvider: ParentComponent = (props) => {
   // Subscribe to auth state changes
   const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
     setUser(currentUser);
+    setLoading(false);
+
     if (!currentUser) return;
 
     subscribeToUserData(currentUser);
-    setLoading(false);
   });
 
   // Clean up subscription on unmount
