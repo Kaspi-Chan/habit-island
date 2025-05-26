@@ -1,3 +1,5 @@
+import { motivation } from "../types";
+
 export const getRandomProperty = (obj: Object) => {
   const keys = Object.keys(obj);
   return obj[keys[(keys.length * Math.random()) << 0] as keyof typeof obj];
@@ -49,3 +51,23 @@ export const openAnimalCatalogue = () => {
 
   if (modal) [modal.show()];
 };
+
+type AssignResponse = {
+  categories: string[];
+  xp: number;
+};
+
+export async function assignTaskProperties(
+  title: string,
+  motivation: motivation,
+  skills: string[]
+) {
+  const res = await fetch("/.netlify/functions/assign-task-properties", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ title, motivation, skills }),
+  });
+  if (!res.ok) throw new Error(`Server error: ${res.statusText}`);
+
+  return res.json();
+}

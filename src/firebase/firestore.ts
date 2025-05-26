@@ -24,28 +24,21 @@ import { setUserInfo, userInfo } from "../components/store/userStore";
 import { User } from "firebase/auth";
 import { DEFAULT_SKILLS, XP_PER_LEVEL } from "../config";
 import { produce } from "solid-js/store";
-import { getDay } from "../utils/utils";
+import { assignTaskProperties, getDay } from "../utils/utils";
 import { Skill, Task, UserAnimal } from "../types";
-import { assignTaskProperties } from "../../netlify/functions/assign-task-properties";
 
 export const addTask = async (
   userId: string,
   newTask: Omit<Task, "categories" | "xp" | "id" | "overdue">
 ) => {
   // prompt gemini
+  const skills = userInfo.skills.map((s) => s.name);
   const response = await assignTaskProperties(
     newTask.title,
-    newTask.motivation
+    newTask.motivation,
+    skills
   );
-
-  // use try catch
-  if (!response) {
-    console.log("LLM Kaput");
-    return;
-  }
-
-  const parsed = JSON.parse(response.text!);
-  const { categories, xp } = parsed;
+  const { categories, xp } = JSON.parse(response);
 
   const taskCol = collection(db, "users", userId, "tasks");
   await addDoc(taskCol, {
@@ -72,7 +65,8 @@ export const editTask = async (
 
   let newXp = xp;
   if (reEval) {
-    const response = await assignTaskProperties(title, motivation);
+    const skills = userInfo.skills.map((s) => s.name);
+    const response = await assignTaskProperties(title, motivation, skills);
 
     if (response) {
       const parsed = JSON.parse(response.text!);
