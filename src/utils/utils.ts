@@ -52,11 +52,6 @@ export const openAnimalCatalogue = () => {
   if (modal) [modal.show()];
 };
 
-type AssignResponse = {
-  categories: string[];
-  xp: number;
-};
-
 export async function assignTaskProperties(
   title: string,
   motivation: motivation,

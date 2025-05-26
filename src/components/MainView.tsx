@@ -33,7 +33,7 @@ const MainView = () => {
   return (
     <div
       class="lg:max-w-[400px] 2xl:max-w-lg lg:py-16 mt-6 mx-auto 
-      w-[95%] lg:min-h-[100vh] flex flex-col">
+      w-[95%] flex flex-col h-full">
       <SkillBars />
       <TasksList />
       <Portal>

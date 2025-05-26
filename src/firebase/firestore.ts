@@ -69,7 +69,7 @@ export const editTask = async (
     const response = await assignTaskProperties(title, motivation, skills);
 
     if (response) {
-      const parsed = JSON.parse(response.text!);
+      const parsed = JSON.parse(response);
       newXp = parsed.xp;
     }
   }

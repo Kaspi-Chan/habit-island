@@ -38,7 +38,7 @@ const TasksList = () => {
     <>
       <ul
         class="list no-scrollbar bg-base-300 rounded-box shadow-md w-full gap-2 pb-8 relative top-4 overflow-y-scroll 
-        border-2 border-primary flex-1">
+        border-2 border-primary flex-1 max-h-full">
         <li class="p-4 pb-2 text-lg tracking-wide">Daily Tasks</li>
         <li class="list-row grid-cols-none bg-base-100 mx-2">
           <NewTaskBtn setShow={setShowModal} />

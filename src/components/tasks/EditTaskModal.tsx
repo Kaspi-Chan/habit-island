@@ -84,8 +84,10 @@ const EditTaskModal = (props: props) => {
       showToast(`Task edited successfully!`);
     } catch (error) {
       showToast(`An error occured!`, 3000, "error");
-      return error as string;
+      console.error(error);
+      return "An error occured!, Please try again...";
     }
+
     modal.close();
     handleReset();
   };
