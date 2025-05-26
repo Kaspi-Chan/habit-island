@@ -72,8 +72,8 @@ export abstract class Animal<
     const { x, y } = this.pickStartingPoint();
     this.position.set(x, y);
     // debug points
-    viewport!.addChild(this.debugLayer);
-    this.debugLayer.zIndex = 1000; // above everything else
+    // viewport!.addChild(this.debugLayer);
+    // this.debugLayer.zIndex = 1000; // above everything else
   }
 
   /**
@@ -286,8 +286,8 @@ export abstract class Animal<
         moveX = Math.sign(moveX) * boosted;
       }
 
-      this.x = clamp(this.x, 0, WORLD_WIDTH);
-      this.y = clamp(this.y, 0, WORLD_HEIGHT);
+      this.x += moveX;
+      this.y += moveY;
     }
   }
 
@@ -328,8 +328,6 @@ export abstract class Animal<
     // save current position
     const currX = this.x;
     const currY = this.y;
-
-    if (dist === 0) console.log("niga gay");
 
     // get next position
     let moveX = (deltaX / dist) * step;

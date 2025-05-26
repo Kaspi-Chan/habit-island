@@ -202,8 +202,6 @@ export const subscribeToUserData = (user: User) => {
         (userData.xp = data.xp ?? 0), (userData.level = data.level ?? 1);
       })
     );
-
-    console.log(userInfo);
   });
 
   // subscribe to tasks
