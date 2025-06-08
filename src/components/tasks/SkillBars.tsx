@@ -1,4 +1,4 @@
-import { createSignal, For, Show } from "solid-js";
+import { createEffect, createSignal, For, Show } from "solid-js";
 import ProgressBar from "./progressBar.jsx";
 import { setUserInfo, userInfo } from "../store/userStore.js";
 import PlusIconBtn from "../misc/PlusIconBtn.jsx";
@@ -10,6 +10,7 @@ const SkillBars = () => {
   let inputRef: HTMLInputElement;
   const [toggleBtn, setToggleBtn] = createSignal(false);
   const [skillTitle, setSkillTitle] = createSignal("");
+  const [isOpen, setIsOpen] = createSignal(false);
 
   const handleNewSkill = async (e: SubmitEvent) => {
     e.preventDefault();
@@ -35,6 +36,12 @@ const SkillBars = () => {
     reset();
   };
 
+  const handleToggle = () => {
+    setIsOpen(!isOpen());
+
+    if (!isOpen()) reset();
+  };
+
   const reset = () => {
     setSkillTitle("");
     setToggleBtn(false);
@@ -42,28 +49,44 @@ const SkillBars = () => {
 
   return (
     <div class="collapse bg-base-200 border-2 border-accent ">
-      <input onClick={reset} type="checkbox" />
+      <input onClick={handleToggle} type="checkbox" />
       <div class="collapse-title flex pr-0">
         <ProgressBar
           label={"XP"}
           progress={userInfo.xp}
           level={userInfo.level}
         />
-        <button class="btn btn-info btn-soft ml-2 mr-4 z-10">
+        <div class="flex items-center justify-center ml-2 px-2 mr-4 ">
           <svg
-            xmlns="http://www.w3.org/2000/svg"
-            class="h-5 w-5"
+            class={`h-5 w-5 transition-transform ${
+              isOpen() ? "-rotate-90" : "rotate-90"
+            }`}
             fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor">
-            <path
+            viewBox="-19.04 0 75.804 75.804"
+            xmlns="http://www.w3.org/2000/svg"
+            stroke="currentColor"
+            stroke-width="2.4257280000000003">
+            <g id="SVGRepo_bgCarrier" stroke-width="0" />
+            <g
+              id="SVGRepo_tracerCarrier"
               stroke-linecap="round"
               stroke-linejoin="round"
-              stroke-width="2"
-              d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
             />
+            <g id="SVGRepo_iconCarrier">
+              <g
+                id="Group_65"
+                data-name="Group 65"
+                transform="translate(-831.568 -384.448)">
+                <path
+                  id="Path_57"
+                  data-name="Path 57"
+                  d="M833.068,460.252a1.5,1.5,0,0,1-1.061-2.561l33.557-33.56a2.53,2.53,0,0,0,0-3.564l-33.557-33.558a1.5,1.5,0,0,1,2.122-2.121l33.556,33.558a5.53,5.53,0,0,1,0,7.807l-33.557,33.56A1.5,1.5,0,0,1,833.068,460.252Z"
+                  fill="#000000"
+                />
+              </g>
+            </g>
           </svg>
-        </button>
+        </div>
       </div>
       <div class="collapse-content text-sm">
         <For each={userInfo.skills}>
