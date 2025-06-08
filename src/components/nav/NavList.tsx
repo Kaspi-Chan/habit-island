@@ -2,6 +2,7 @@ import { Show } from "solid-js";
 import { logout } from "../../firebase/auth.js";
 import { openAnimalCatalogue } from "../../utils/utils.js";
 import { showStatus } from "../store/userStore.js";
+import AudioToggle from "../audio/AudioToggle.jsx";
 
 interface Props {
   open: boolean;
@@ -47,6 +48,7 @@ const NavList = (props: Props) => {
           </a>
         </div>
       </li>
+      <AudioToggle />
       <li>
         <a class="tooltip tooltip-left" data-tip="Logout" onclick={logout}>
           <svg
